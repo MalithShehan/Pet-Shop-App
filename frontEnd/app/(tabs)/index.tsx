@@ -1,34 +1,62 @@
 import { router } from 'expo-router';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
 import { PageShell } from '@/components/page-shell';
 import { ProductCard } from '@/components/product-card';
 import { AppTheme } from '@/constants/app-theme';
-import { pets } from '@/data/pets';
+import { products } from '@/data/pets';
 import { AppRoutes } from '@/routes/app-routes';
 
 export default function HomeScreen() {
-  const featured = pets.slice(0, 3);
+  const { width } = useWindowDimensions();
+  const featured = products.slice(0, 4);
+  const heroPreview = products.slice(0, 2);
+  const isCompact = width < 360;
+  const isTablet = width >= 768;
 
   return (
     <PageShell>
       <Animated.View entering={FadeInUp.duration(550)} style={styles.heroWrap}>
-        <LinearGradient colors={['#FFFFFFE6', '#FFFFFFC9']} style={styles.hero}>
+        <LinearGradient colors={['#FFFFFFF2', '#FFFFFFD6']} style={styles.hero}>
+          <View style={[styles.mediaWrap, isCompact && styles.mediaWrapCompact, isTablet && styles.mediaWrapTablet]}>
+            <Image source={{ uri: heroPreview[0].image }} style={styles.heroImageMain} contentFit="cover" />
+            <Image
+              source={{ uri: heroPreview[1].image }}
+              style={[styles.heroImageSecondary, isCompact && styles.heroImageSecondaryCompact]}
+              contentFit="cover"
+            />
+            <LinearGradient colors={[AppTheme.colors.imageOverlay, 'transparent']} style={styles.mediaShade} />
+          </View>
+
           <Text style={styles.kicker}>PET SHOP MOBILE</Text>
-          <Text style={styles.title}>Find your perfect furry companion.</Text>
+          <Text style={[styles.title, isCompact && styles.titleCompact, isTablet && styles.titleTablet]}>
+            Find your perfect furry companion.
+          </Text>
           <Text style={styles.subtitle}>
-            Explore healthy pets with clear details, smooth shopping flow, and friendly care support.
+            Explore pets, foods, and accessories with a smooth and joyful shopping experience.
           </Text>
 
-          <View style={styles.ctaRow}>
-            <Pressable style={styles.ctaPrimary} onPress={() => router.push(AppRoutes.shop as never)}>
+          <View style={[styles.metricsRow, isCompact && styles.metricsRowCompact]}>
+            <View style={styles.metricChip}>
+              <Text style={styles.metricValue}>250+</Text>
+              <Text style={styles.metricLabel}>Pet essentials</Text>
+            </View>
+            <View style={styles.metricChip}>
+              <Text style={styles.metricValue}>48h</Text>
+              <Text style={styles.metricLabel}>Fast delivery</Text>
+            </View>
+          </View>
+
+          <View style={[styles.ctaRow, isCompact && styles.ctaRowCompact]}>
+            <Pressable style={[styles.ctaPrimary, isCompact && styles.ctaBlock]} onPress={() => router.push(AppRoutes.shop as never)}>
               <LinearGradient colors={[AppTheme.colors.primaryDark, AppTheme.colors.primary]} style={styles.ctaPrimaryFill}>
-                <Text style={styles.ctaPrimaryText}>Browse Pets</Text>
+                <Text style={styles.ctaPrimaryText}>Browse Shop</Text>
               </LinearGradient>
             </Pressable>
-            <Pressable style={styles.ctaGhost} onPress={() => router.push(AppRoutes.about as never)}>
+            <Pressable style={[styles.ctaGhost, isCompact && styles.ctaBlock]} onPress={() => router.push(AppRoutes.about as never)}>
               <Text style={styles.ctaGhostText}>About Us</Text>
             </Pressable>
           </View>
@@ -36,8 +64,8 @@ export default function HomeScreen() {
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(100).duration(500)} style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Featured Pets</Text>
-        <Text style={styles.sectionSub}>Most loved picks by our community</Text>
+        <Text style={styles.sectionTitle}>Featured Products</Text>
+        <Text style={styles.sectionSub}>Top picks from pets, foods, and accessories</Text>
       </Animated.View>
 
       {featured.map((item, index) => (
@@ -57,37 +85,113 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: AppTheme.colors.border,
     padding: 16,
-    gap: 8,
+    gap: 10,
+  },
+  mediaWrap: {
+    height: 170,
+    borderRadius: AppTheme.radius.lg,
+    overflow: 'hidden',
+    marginBottom: 2,
+    ...AppTheme.shadow.soft,
+  },
+  mediaWrapCompact: {
+    height: 150,
+  },
+  mediaWrapTablet: {
+    height: 220,
+  },
+  heroImageMain: {
+    width: '100%',
+    height: '100%',
+  },
+  heroImageSecondary: {
+    position: 'absolute',
+    width: 120,
+    height: 82,
+    right: 10,
+    bottom: 10,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#FFFFFFD1',
+  },
+  heroImageSecondaryCompact: {
+    width: 104,
+    height: 74,
+  },
+  mediaShade: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
   },
   kicker: {
     color: AppTheme.colors.primaryDark,
     fontWeight: '800',
-    fontSize: 11,
-    letterSpacing: 1,
+    fontSize: 12,
+    letterSpacing: 1.2,
   },
   title: {
     color: AppTheme.colors.text,
     fontWeight: '900',
-    fontSize: 30,
-    lineHeight: 35,
+    fontSize: 31,
+    lineHeight: 36,
+  },
+  titleCompact: {
+    fontSize: 27,
+    lineHeight: 31,
+  },
+  titleTablet: {
+    fontSize: 36,
+    lineHeight: 42,
   },
   subtitle: {
     color: AppTheme.colors.textSoft,
     fontSize: 14,
     lineHeight: 21,
   },
-  ctaRow: {
-    marginTop: 8,
+  metricsRow: {
     flexDirection: 'row',
     gap: 10,
+    marginTop: 2,
+  },
+  metricsRowCompact: {
+    flexWrap: 'wrap',
+  },
+  metricChip: {
+    flex: 1,
+    backgroundColor: '#FFFFFFC7',
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  metricValue: {
+    color: AppTheme.colors.text,
+    fontWeight: '900',
+    fontSize: 16,
+  },
+  metricLabel: {
+    color: AppTheme.colors.textSoft,
+    fontSize: 12,
+    marginTop: 1,
+  },
+  ctaRow: {
+    marginTop: 2,
+    flexDirection: 'row',
+    gap: 10,
+  },
+  ctaRowCompact: {
+    flexWrap: 'wrap',
   },
   ctaPrimary: {
     borderRadius: 999,
     overflow: 'hidden',
   },
   ctaPrimaryFill: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 17,
+    paddingVertical: 11,
   },
   ctaPrimaryText: {
     color: 'white',
@@ -97,13 +201,17 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     borderColor: AppTheme.colors.border,
-    backgroundColor: AppTheme.colors.surface,
+    backgroundColor: '#FFFFFFD4',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 11,
   },
   ctaGhostText: {
     color: AppTheme.colors.text,
-    fontWeight: '700',
+    fontWeight: '800',
+  },
+  ctaBlock: {
+    flex: 1,
+    minWidth: 140,
   },
   sectionHeader: {
     marginTop: 6,
