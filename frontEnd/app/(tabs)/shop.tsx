@@ -33,9 +33,17 @@ export default function ShopScreen() {
   return (
     <PageShell>
       <Animated.View entering={FadeIn.duration(350)} style={styles.headerWrap}>
-        <LinearGradient colors={['#FFFFFFDF', '#FFFFFFBB']} style={styles.header}>
+        <LinearGradient colors={['#FFFFFFED', '#FFFFFFCD']} style={styles.header}>
           <Text style={styles.title}>Shop Pets</Text>
           <Text style={styles.subTitle}>Find dogs, cats, and birds for your perfect home.</Text>
+          <View style={styles.pillRow}>
+            <View style={styles.pill}>
+              <Text style={styles.pillText}>Curated picks</Text>
+            </View>
+            <View style={styles.pill}>
+              <Text style={styles.pillText}>Trusted breeders</Text>
+            </View>
+          </View>
         </LinearGradient>
       </Animated.View>
 
@@ -62,19 +70,38 @@ const styles = StyleSheet.create({
     ...AppTheme.shadow.card,
   },
   header: {
-    gap: 4,
+    gap: 6,
     borderRadius: AppTheme.radius.lg,
     borderWidth: 1,
     borderColor: AppTheme.colors.border,
-    padding: 14,
+    padding: 15,
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '900',
     color: AppTheme.colors.text,
   },
   subTitle: {
     color: AppTheme.colors.textSoft,
+    lineHeight: 19,
+  },
+  pillRow: {
+    marginTop: 2,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  pill: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    backgroundColor: '#FFFFFFC9',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  pillText: {
+    color: AppTheme.colors.primaryDark,
+    fontSize: 11,
+    fontWeight: '800',
   },
   emptyWrap: {
     borderWidth: 1,
