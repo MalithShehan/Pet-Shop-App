@@ -12,12 +12,11 @@ import { AppTheme } from '@/constants/app-theme';
 import {
   categoryOptionToValue,
   categoryOptions,
-  products,
+  ProductItem,
   subCategoryByCategory,
-  subCategoryLabelMap,
   subCategoryLabelToValue,
 } from '@/data/pets';
-import { useLoadingDelay } from '@/hooks/useLoadingDelay';
+import { fetchProducts } from '@/services/product-api';
 
 const priceRangeOptions = ['All Prices', 'Under $20', '$20 - $100', 'Over $100'] as const;
 type PriceRangeOption = (typeof priceRangeOptions)[number];
@@ -27,7 +26,9 @@ export default function ShopScreen() {
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('All Types');
   const [selectedPriceRange, setSelectedPriceRange] = useState<PriceRangeOption>('All Prices');
   const [query, setQuery] = useState('');
-  const loading = useLoadingDelay(450);
+  const [productItems, setProductItems] = useState<ProductItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setSelectedSubCategory('All Types');
@@ -38,33 +39,74 @@ export default function ShopScreen() {
     [selectedCategory]
   );
 
-  const filteredProducts = useMemo(() => {
-    const search = query.trim().toLowerCase();
+  const filterParams = useMemo(() => {
     const categoryValue = categoryOptionToValue[selectedCategory];
     const subCategoryValue = subCategoryLabelToValue[selectedSubCategory];
+    const params: {
+      category?: 'pet' | 'food' | 'accessory';
+      subCategory?:
+        | 'dog'
+        | 'cat'
+        | 'bird'
+        | 'dog-food'
+        | 'cat-food'
+        | 'bird-food'
+        | 'toys'
+        | 'cages'
+        | 'leashes'
+        | 'bowls';
+      minPrice?: number;
+      maxPrice?: number;
+      q?: string;
+      sort?: 'latest' | 'price_asc' | 'price_desc';
+      limit?: number;
+    } = {
+      limit: 100,
+      sort: 'latest',
+    };
 
-    return products.filter((item) => {
-      const categoryMatch = categoryValue === 'all' || item.category === categoryValue;
-      const subCategoryMatch =
-        subCategoryValue === 'all' || item.subCategory === subCategoryValue;
-      const searchMatch =
-        search.length === 0 ||
-        item.name.toLowerCase().includes(search) ||
-        item.description.toLowerCase().includes(search) ||
-        subCategoryLabelMap[item.subCategory].toLowerCase().includes(search);
+    if (categoryValue !== 'all') {
+      params.category = categoryValue;
+    }
 
-      let priceMatch = true;
-      if (selectedPriceRange === 'Under $20') {
-        priceMatch = item.price < 20;
-      } else if (selectedPriceRange === '$20 - $100') {
-        priceMatch = item.price >= 20 && item.price <= 100;
-      } else if (selectedPriceRange === 'Over $100') {
-        priceMatch = item.price > 100;
+    if (subCategoryValue !== 'all') {
+      params.subCategory = subCategoryValue;
+    }
+
+    if (query.trim()) {
+      params.q = query.trim();
+    }
+
+    if (selectedPriceRange === 'Under $20') {
+      params.maxPrice = 20;
+    } else if (selectedPriceRange === '$20 - $100') {
+      params.minPrice = 20;
+      params.maxPrice = 100;
+    } else if (selectedPriceRange === 'Over $100') {
+      params.minPrice = 100;
+    }
+
+    return params;
+  }, [query, selectedCategory, selectedPriceRange, selectedSubCategory]);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const result = await fetchProducts(filterParams);
+        setProductItems(result);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unable to load products');
+        setProductItems([]);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      return categoryMatch && subCategoryMatch && searchMatch && priceMatch;
-    });
-  }, [query, selectedCategory, selectedSubCategory, selectedPriceRange]);
+    loadProducts();
+  }, [filterParams]);
 
   return (
     <PageShell>
@@ -120,13 +162,18 @@ export default function ShopScreen() {
 
       {loading ? (
         <LoadingSkeleton rows={4} />
-      ) : filteredProducts.length === 0 ? (
+      ) : error ? (
+        <View style={styles.emptyWrap}>
+          <Text style={styles.emptyTitle}>Could not load products</Text>
+          <Text style={styles.emptySub}>{error}</Text>
+        </View>
+      ) : productItems.length === 0 ? (
         <View style={styles.emptyWrap}>
           <Text style={styles.emptyTitle}>No products found</Text>
           <Text style={styles.emptySub}>Try another keyword or filter combination.</Text>
         </View>
       ) : (
-        filteredProducts.map((item, index) => <ProductCard key={item.id} item={item} index={index} />)
+        productItems.map((item, index) => <ProductCard key={item.id} item={item} index={index} />)
       )}
     </PageShell>
   );

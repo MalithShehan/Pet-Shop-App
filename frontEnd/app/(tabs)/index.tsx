@@ -2,30 +2,60 @@ import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useEffect, useState } from 'react';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
+import { LoadingSkeleton } from '@/components/loading-skeleton';
 import { PageShell } from '@/components/page-shell';
 import { ProductCard } from '@/components/product-card';
 import { AppTheme } from '@/constants/app-theme';
-import { products } from '@/data/pets';
+import { getDeviceClass } from '@/constants/responsive';
+import { ProductItem, products } from '@/data/pets';
 import { AppRoutes } from '@/routes/app-routes';
+import { fetchProducts } from '@/services/product-api';
 
 export default function HomeScreen() {
-  const { width } = useWindowDimensions();
-  const featured = products.slice(0, 4);
-  const heroPreview = products.slice(0, 2);
-  const isCompact = width < 360;
-  const isTablet = width >= 768;
+  const { width, height } = useWindowDimensions();
+  const [featured, setFeatured] = useState<ProductItem[]>(products.slice(0, 4));
+  const [loading, setLoading] = useState(true);
+  const heroPreview = featured.slice(0, 2);
+  const { isCompact, isTablet, isLandscape } = getDeviceClass(width, height);
+  const compactActionLayout = isCompact || (isLandscape && !isTablet);
+  const heroMediaHeight = isTablet ? (isLandscape ? 240 : 220) : isLandscape ? 186 : isCompact ? 150 : 170;
+  const secondaryImageSize = isTablet
+    ? { width: 146, height: 100 }
+    : isLandscape
+      ? { width: 106, height: 72 }
+      : isCompact
+        ? { width: 104, height: 74 }
+        : { width: 120, height: 82 };
+
+  useEffect(() => {
+    const loadFeatured = async () => {
+      try {
+        const result = await fetchProducts({ limit: 4, sort: 'latest' });
+        if (result.length > 0) {
+          setFeatured(result.slice(0, 4));
+        }
+      } catch {
+        // Keep local fallback data.
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFeatured();
+  }, []);
 
   return (
     <PageShell>
       <Animated.View entering={FadeInUp.duration(550)} style={styles.heroWrap}>
         <LinearGradient colors={['#FFFFFFF2', '#FFFFFFD6']} style={styles.hero}>
-          <View style={[styles.mediaWrap, isCompact && styles.mediaWrapCompact, isTablet && styles.mediaWrapTablet]}>
+          <View style={[styles.mediaWrap, { height: heroMediaHeight }]}>
             <Image source={{ uri: heroPreview[0].image }} style={styles.heroImageMain} contentFit="cover" />
             <Image
               source={{ uri: heroPreview[1].image }}
-              style={[styles.heroImageSecondary, isCompact && styles.heroImageSecondaryCompact]}
+              style={[styles.heroImageSecondary, secondaryImageSize]}
               contentFit="cover"
             />
             <LinearGradient colors={[AppTheme.colors.imageOverlay, 'transparent']} style={styles.mediaShade} />
@@ -39,7 +69,7 @@ export default function HomeScreen() {
             Explore pets, foods, and accessories with a smooth and joyful shopping experience.
           </Text>
 
-          <View style={[styles.metricsRow, isCompact && styles.metricsRowCompact]}>
+          <View style={[styles.metricsRow, compactActionLayout && styles.metricsRowCompact]}>
             <View style={styles.metricChip}>
               <Text style={styles.metricValue}>250+</Text>
               <Text style={styles.metricLabel}>Pet essentials</Text>
@@ -50,13 +80,13 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <View style={[styles.ctaRow, isCompact && styles.ctaRowCompact]}>
-            <Pressable style={[styles.ctaPrimary, isCompact && styles.ctaBlock]} onPress={() => router.push(AppRoutes.shop as never)}>
+          <View style={[styles.ctaRow, compactActionLayout && styles.ctaRowCompact]}>
+            <Pressable style={[styles.ctaPrimary, compactActionLayout && styles.ctaBlock]} onPress={() => router.push(AppRoutes.shop as never)}>
               <LinearGradient colors={[AppTheme.colors.primaryDark, AppTheme.colors.primary]} style={styles.ctaPrimaryFill}>
                 <Text style={styles.ctaPrimaryText}>Browse Shop</Text>
               </LinearGradient>
             </Pressable>
-            <Pressable style={[styles.ctaGhost, isCompact && styles.ctaBlock]} onPress={() => router.push(AppRoutes.about as never)}>
+            <Pressable style={[styles.ctaGhost, compactActionLayout && styles.ctaBlock]} onPress={() => router.push(AppRoutes.about as never)}>
               <Text style={styles.ctaGhostText}>About Us</Text>
             </Pressable>
           </View>
@@ -68,9 +98,11 @@ export default function HomeScreen() {
         <Text style={styles.sectionSub}>Top picks from pets, foods, and accessories</Text>
       </Animated.View>
 
-      {featured.map((item, index) => (
-        <ProductCard key={item.id} item={item} index={index} />
-      ))}
+      {loading ? (
+        <LoadingSkeleton rows={3} />
+      ) : (
+        featured.map((item, index) => <ProductCard key={item.id} item={item} index={index} />)
+      )}
     </PageShell>
   );
 }
@@ -88,17 +120,10 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   mediaWrap: {
-    height: 170,
     borderRadius: AppTheme.radius.lg,
     overflow: 'hidden',
     marginBottom: 2,
     ...AppTheme.shadow.soft,
-  },
-  mediaWrapCompact: {
-    height: 150,
-  },
-  mediaWrapTablet: {
-    height: 220,
   },
   heroImageMain: {
     width: '100%',
@@ -106,17 +131,11 @@ const styles = StyleSheet.create({
   },
   heroImageSecondary: {
     position: 'absolute',
-    width: 120,
-    height: 82,
     right: 10,
     bottom: 10,
     borderRadius: 14,
     borderWidth: 2,
     borderColor: '#FFFFFFD1',
-  },
-  heroImageSecondaryCompact: {
-    width: 104,
-    height: 74,
   },
   mediaShade: {
     position: 'absolute',

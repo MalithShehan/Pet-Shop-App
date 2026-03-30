@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     borderColor: AppTheme.colors.border,
-    backgroundColor: AppTheme.colors.surface,
+    backgroundColor: '#FBF7F1',
     paddingHorizontal: 14,
     paddingVertical: 8,
     flexDirection: 'row',
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   },
   chipActive: {
     backgroundColor: AppTheme.colors.primary,
-    borderColor: AppTheme.colors.primary,
+    borderColor: '#E7A648',
   },
   text: {
     color: AppTheme.colors.text,

@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AppTheme } from '@/constants/app-theme';
 import { CartItem as ItemType } from '@/context/cart-context';
+import { categoryLabelMap, subCategoryLabelMap } from '@/data/pets';
 
 type Props = {
   item: ItemType;
@@ -16,7 +17,9 @@ export function CartItem({ item, onDecrease, onIncrease, onRemove }: Props) {
     <View style={styles.card}>
       <View style={styles.info}>
         <Text style={styles.title}>{item.name}</Text>
-        <Text style={styles.meta}>{item.category}</Text>
+        <Text style={styles.meta}>
+          {categoryLabelMap[item.category]} • {subCategoryLabelMap[item.subCategory]}
+        </Text>
         <Text style={styles.price}>${item.price.toFixed(2)} each</Text>
       </View>
 
@@ -42,13 +45,13 @@ export function CartItem({ item, onDecrease, onIncrease, onRemove }: Props) {
 const styles = StyleSheet.create({
   card: {
     borderRadius: AppTheme.radius.lg,
-    backgroundColor: AppTheme.colors.surface,
-    borderWidth: 1,
-    borderColor: AppTheme.colors.border,
-    padding: 12,
+    backgroundColor: '#FFFFFFF2',
+    borderWidth: 0,
+    padding: 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 10,
+    ...AppTheme.shadow.soft,
   },
   info: {
     flex: 1,
@@ -78,11 +81,11 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   iconBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: AppTheme.colors.border,
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    borderWidth: 0,
+    backgroundColor: '#F7EFE4',
     alignItems: 'center',
     justifyContent: 'center',
   },

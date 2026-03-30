@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 
 import { AppTheme } from '@/constants/app-theme';
+import { getDeviceClass } from '@/constants/responsive';
 
 type AuthMode = 'signin' | 'signup';
 
@@ -21,6 +22,8 @@ type Props = {
 };
 
 export function AuthForm({ mode, onSubmit, error, loading }: Props) {
+  const { width, height } = useWindowDimensions();
+  const { isTablet, isLargePhone } = getDeviceClass(width, height);
   const [values, setValues] = useState<AuthValues>({
     name: '',
     email: '',
@@ -34,15 +37,15 @@ export function AuthForm({ mode, onSubmit, error, loading }: Props) {
   const title = mode === 'signup' ? 'Create your account' : 'Welcome back';
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>{title}</Text>
+    <View style={[styles.card, isLargePhone && styles.cardLargePhone, isTablet && styles.cardTablet]}>
+      <Text style={[styles.title, isTablet && styles.titleTablet]}>{title}</Text>
 
       {mode === 'signup' && (
         <TextInput
           placeholder="Your full name"
           value={values.name}
           onChangeText={(text) => update('name', text)}
-          style={styles.input}
+          style={[styles.input, isTablet && styles.inputTablet]}
         />
       )}
 
@@ -52,7 +55,7 @@ export function AuthForm({ mode, onSubmit, error, loading }: Props) {
         onChangeText={(text) => update('email', text)}
         keyboardType="email-address"
         autoCapitalize="none"
-        style={styles.input}
+        style={[styles.input, isTablet && styles.inputTablet]}
       />
 
       <TextInput
@@ -60,14 +63,14 @@ export function AuthForm({ mode, onSubmit, error, loading }: Props) {
         value={values.password}
         onChangeText={(text) => update('password', text)}
         secureTextEntry
-        style={styles.input}
+        style={[styles.input, isTablet && styles.inputTablet]}
       />
 
       {!!error && <Text style={styles.error}>{error}</Text>}
 
       <Pressable
         disabled={loading}
-        style={[styles.buttonWrap, loading && styles.buttonDisabled]}
+        style={[styles.buttonWrap, isTablet && styles.buttonWrapTablet, loading && styles.buttonDisabled]}
         onPress={() => onSubmit(values)}>
         <LinearGradient colors={[AppTheme.colors.primaryDark, AppTheme.colors.primary]} style={styles.button}>
           <Ionicons name="lock-closed" size={16} color="white" />
@@ -80,27 +83,43 @@ export function AuthForm({ mode, onSubmit, error, loading }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: AppTheme.colors.glass,
+    width: '100%',
+    maxWidth: 460,
+    alignSelf: 'center',
+    backgroundColor: '#FFFFFFF2',
     borderRadius: AppTheme.radius.lg,
-    padding: 16,
-    borderWidth: 1,
+    padding: 18,
+    borderWidth: 0,
     borderColor: AppTheme.colors.border,
-    gap: 10,
+    gap: 11,
     ...AppTheme.shadow.card,
+  },
+  cardLargePhone: {
+    maxWidth: 500,
+  },
+  cardTablet: {
+    maxWidth: 560,
+    padding: 22,
   },
   title: {
     color: AppTheme.colors.text,
-    fontWeight: '800',
-    fontSize: 20,
+    fontWeight: '900',
+    fontSize: 24,
     marginBottom: 6,
+  },
+  titleTablet: {
+    fontSize: 28,
   },
   input: {
     borderWidth: 1,
     borderColor: AppTheme.colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: 'white',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: '#FAF7F2',
+  },
+  inputTablet: {
+    paddingVertical: 13,
   },
   error: {
     color: AppTheme.colors.danger,
@@ -108,12 +127,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   buttonWrap: {
-    marginTop: 2,
-    borderRadius: 12,
+    marginTop: 4,
+    borderRadius: 16,
     overflow: 'hidden',
   },
+  buttonWrapTablet: {
+    marginTop: 6,
+  },
   button: {
-    paddingVertical: 12,
+    paddingVertical: 13,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,

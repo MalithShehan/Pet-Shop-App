@@ -57,11 +57,11 @@ export default function ContactScreen() {
 const styles = StyleSheet.create({
   card: {
     borderRadius: AppTheme.radius.xl,
-    backgroundColor: AppTheme.colors.card,
-    borderWidth: 1,
-    borderColor: AppTheme.colors.border,
-    padding: 16,
+    backgroundColor: '#FFFFFFF2',
+    borderWidth: 0,
+    padding: 18,
     gap: 10,
+    ...AppTheme.shadow.soft,
   },
   title: {
     color: AppTheme.colors.text,
@@ -73,12 +73,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   input: {
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: AppTheme.colors.border,
-    backgroundColor: AppTheme.colors.surface,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    backgroundColor: '#FAF7F2',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     color: AppTheme.colors.text,
   },
   textArea: {
@@ -87,8 +87,8 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: AppTheme.colors.primary,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: 13,
+    borderRadius: 16,
     alignItems: 'center',
   },
   buttonText: {
