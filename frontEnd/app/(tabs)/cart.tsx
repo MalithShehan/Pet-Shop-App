@@ -37,13 +37,13 @@ export default function CartScreen() {
     <PageShell>
       <Animated.View entering={FadeIn.duration(320)}>
         <Text style={styles.title}>Your Cart</Text>
-        <Text style={styles.subTitle}>Review your selected pets before checkout.</Text>
+        <Text style={styles.subTitle}>Review your selected products before checkout.</Text>
       </Animated.View>
 
       {items.length === 0 ? (
         <View style={styles.emptyCard}>
           <Text style={styles.emptyTitle}>Your cart is empty</Text>
-          <Text style={styles.emptySub}>Add pets from the shop to get started.</Text>
+          <Text style={styles.emptySub}>Add products from the shop to get started.</Text>
           <Pressable onPress={() => router.push(AppRoutes.shop as never)} style={styles.shopBtn}>
             <Text style={styles.shopBtnText}>Go To Shop</Text>
           </Pressable>
