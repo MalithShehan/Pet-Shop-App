@@ -45,23 +45,23 @@ function resolveApiBaseUrl() {
       return configured;
     }
 
-    if (Platform.OS === 'android') {
-      return replaceLocalhost(configured, '10.0.2.2');
-    }
-
     if (expoHost) {
       return replaceLocalhost(configured, expoHost);
+    }
+
+    if (Platform.OS === 'android') {
+      return replaceLocalhost(configured, '10.0.2.2');
     }
 
     return configured;
   }
 
-  if (Platform.OS === 'android') {
-    return 'http://10.0.2.2:5000/api';
-  }
-
   if (expoHost) {
     return `http://${expoHost}:5000/api`;
+  }
+
+  if (Platform.OS === 'android') {
+    return 'http://10.0.2.2:5000/api';
   }
 
   return 'http://localhost:5000/api';
