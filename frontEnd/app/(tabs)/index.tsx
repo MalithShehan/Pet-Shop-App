@@ -115,9 +115,9 @@ const styles = StyleSheet.create({
   hero: {
     borderRadius: AppTheme.radius.xl,
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
+    borderColor: AppTheme.colors.borderStrong,
     padding: 16,
-    gap: 10,
+    gap: 11,
   },
   mediaWrap: {
     borderRadius: AppTheme.radius.lg,
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     color: AppTheme.colors.primaryDark,
     fontWeight: '800',
     fontSize: 12,
-    letterSpacing: 1.2,
+    letterSpacing: 1.1,
   },
   title: {
     color: AppTheme.colors.text,
@@ -179,9 +179,9 @@ const styles = StyleSheet.create({
   },
   metricChip: {
     flex: 1,
-    backgroundColor: '#FFFFFFC7',
+    backgroundColor: AppTheme.colors.surfaceElevated,
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
+    borderColor: AppTheme.colors.borderStrong,
     borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -219,8 +219,8 @@ const styles = StyleSheet.create({
   ctaGhost: {
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
-    backgroundColor: '#FFFFFFD4',
+    borderColor: AppTheme.colors.borderStrong,
+    backgroundColor: AppTheme.colors.surfaceElevated,
     paddingHorizontal: 16,
     paddingVertical: 11,
   },
@@ -234,14 +234,16 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     marginTop: 6,
+    paddingHorizontal: 2,
   },
   sectionTitle: {
     color: AppTheme.colors.text,
     fontSize: 22,
-    fontWeight: '800',
+    fontWeight: '900',
   },
   sectionSub: {
     marginTop: 3,
-    color: AppTheme.colors.textSoft,
+    color: AppTheme.colors.textMuted,
+    fontSize: 13,
   },
 });

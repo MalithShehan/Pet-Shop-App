@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { CategoryFilter } from '@/components/category-filter';
@@ -9,6 +9,7 @@ import { PageShell } from '@/components/page-shell';
 import { ProductCard } from '@/components/product-card';
 import { SearchBar } from '@/components/search-bar';
 import { AppTheme } from '@/constants/app-theme';
+import { getDeviceClass } from '@/constants/responsive';
 import {
   categoryOptionToValue,
   categoryOptions,
@@ -22,6 +23,8 @@ const priceRangeOptions = ['All Prices', 'Under $20', '$20 - $100', 'Over $100']
 type PriceRangeOption = (typeof priceRangeOptions)[number];
 
 export default function ShopScreen() {
+  const { width, height } = useWindowDimensions();
+  const { isTablet, isCompact, isLandscape } = getDeviceClass(width, height);
   const [selectedCategory, setSelectedCategory] = useState<(typeof categoryOptions)[number]>('All');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('All Types');
   const [selectedPriceRange, setSelectedPriceRange] = useState<PriceRangeOption>('All Prices');
@@ -112,9 +115,11 @@ export default function ShopScreen() {
     <PageShell>
       <Animated.View entering={FadeIn.duration(350)} style={styles.headerWrap}>
         <LinearGradient colors={['#FFFFFFED', '#FFFFFFCD']} style={styles.header}>
-          <Text style={styles.title}>Shop Pet Essentials</Text>
+          <Text style={[styles.title, isTablet && styles.titleTablet, (isCompact || isLandscape) && styles.titleCompact]}>
+            Shop Pet Essentials
+          </Text>
           <Text style={styles.subTitle}>Browse pets, foods, and accessories in one place.</Text>
-          <View style={styles.pillRow}>
+          <View style={[styles.pillRow, (isCompact || isLandscape) && styles.pillRowCompact]}>
             <View style={styles.pill}>
               <Text style={styles.pillText}>Pets</Text>
             </View>
@@ -130,35 +135,44 @@ export default function ShopScreen() {
 
       <SearchBar value={query} onChangeText={setQuery} placeholder="Search products, food, accessories" />
 
-      <CategoryFilter
-        categories={categoryOptions}
-        selected={selectedCategory}
-        onSelect={setSelectedCategory}
-        icons={{
-          All: 'grid-outline',
-          Pets: 'paw-outline',
-          Foods: 'restaurant-outline',
-          Accessories: 'gift-outline',
-        }}
-      />
+      <View style={styles.filterBlock}>
+        <Text style={styles.filterLabel}>Category</Text>
+        <CategoryFilter
+          categories={categoryOptions}
+          selected={selectedCategory}
+          onSelect={setSelectedCategory}
+          icons={{
+            All: 'grid-outline',
+            Pets: 'paw-outline',
+            Foods: 'restaurant-outline',
+            Accessories: 'gift-outline',
+          }}
+        />
+      </View>
 
-      <CategoryFilter
-        categories={subCategoryOptions}
-        selected={selectedSubCategory}
-        onSelect={setSelectedSubCategory}
-      />
+      <View style={styles.filterBlock}>
+        <Text style={styles.filterLabel}>Type</Text>
+        <CategoryFilter
+          categories={subCategoryOptions}
+          selected={selectedSubCategory}
+          onSelect={setSelectedSubCategory}
+        />
+      </View>
 
-      <CategoryFilter
-        categories={priceRangeOptions}
-        selected={selectedPriceRange}
-        onSelect={setSelectedPriceRange}
-        icons={{
-          'All Prices': 'pricetags-outline',
-          'Under $20': 'cash-outline',
-          '$20 - $100': 'wallet-outline',
-          'Over $100': 'diamond-outline',
-        }}
-      />
+      <View style={styles.filterBlock}>
+        <Text style={styles.filterLabel}>Price Range</Text>
+        <CategoryFilter
+          categories={priceRangeOptions}
+          selected={selectedPriceRange}
+          onSelect={setSelectedPriceRange}
+          icons={{
+            'All Prices': 'pricetags-outline',
+            'Under $20': 'cash-outline',
+            '$20 - $100': 'wallet-outline',
+            'Over $100': 'diamond-outline',
+          }}
+        />
+      </View>
 
       {loading ? (
         <LoadingSkeleton rows={4} />
@@ -185,16 +199,22 @@ const styles = StyleSheet.create({
     ...AppTheme.shadow.card,
   },
   header: {
-    gap: 6,
+    gap: 7,
     borderRadius: AppTheme.radius.lg,
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
-    padding: 15,
+    borderColor: AppTheme.colors.borderStrong,
+    padding: 16,
   },
   title: {
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: '900',
     color: AppTheme.colors.text,
+  },
+  titleTablet: {
+    fontSize: 34,
+  },
+  titleCompact: {
+    fontSize: 24,
   },
   subTitle: {
     color: AppTheme.colors.textSoft,
@@ -205,11 +225,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
+  pillRowCompact: {
+    flexWrap: 'wrap',
+  },
   pill: {
     borderRadius: 999,
     borderWidth: 1,
     borderColor: AppTheme.colors.border,
-    backgroundColor: '#FFFFFFC9',
+    backgroundColor: AppTheme.colors.surfaceSoft,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
@@ -218,15 +241,24 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800',
   },
+  filterBlock: {
+    gap: 4,
+  },
+  filterLabel: {
+    color: AppTheme.colors.textMuted,
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
   emptyWrap: {
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
+    borderColor: AppTheme.colors.borderStrong,
     borderRadius: AppTheme.radius.lg,
-    backgroundColor: AppTheme.colors.surface,
+    backgroundColor: AppTheme.colors.surfaceElevated,
     padding: 16,
     alignItems: 'center',
     gap: 4,
-    ...AppTheme.shadow.card,
+    ...AppTheme.shadow.soft,
   },
   emptyTitle: {
     color: AppTheme.colors.text,

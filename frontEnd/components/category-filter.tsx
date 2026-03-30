@@ -22,7 +22,7 @@ export function CategoryFilter<T extends string>({ categories, selected, onSelec
             key={category}
             onPress={() => onSelect(category)}
             style={[styles.chip, active && styles.chipActive]}>
-            {icon ? <Ionicons name={icon} size={14} color={active ? 'white' : AppTheme.colors.primaryDark} /> : null}
+            {icon ? <Ionicons name={icon} size={14} color={active ? '#3A2710' : AppTheme.colors.primaryDark} /> : null}
             <Text style={[styles.text, active && styles.textActive]}>{category}</Text>
           </Pressable>
         );
@@ -35,12 +35,13 @@ const styles = StyleSheet.create({
   row: {
     gap: 8,
     paddingVertical: 4,
+    paddingRight: 4,
   },
   chip: {
     borderRadius: 999,
     borderWidth: 1,
     borderColor: AppTheme.colors.border,
-    backgroundColor: '#FBF7F1',
+    backgroundColor: AppTheme.colors.surfaceElevated,
     paddingHorizontal: 14,
     paddingVertical: 8,
     flexDirection: 'row',
@@ -48,14 +49,15 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   chipActive: {
-    backgroundColor: AppTheme.colors.primary,
-    borderColor: '#E7A648',
+    backgroundColor: '#F8D79D',
+    borderColor: '#E8BD73',
   },
   text: {
     color: AppTheme.colors.text,
     fontWeight: '600',
+    fontSize: 13,
   },
   textActive: {
-    color: 'white',
+    color: '#3A2710',
   },
 });

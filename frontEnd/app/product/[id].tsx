@@ -117,8 +117,8 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: AppTheme.radius.xl,
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
-    backgroundColor: '#FFFFFFF0',
+    borderColor: AppTheme.colors.borderStrong,
+    backgroundColor: AppTheme.colors.surfaceElevated,
     overflow: 'hidden',
     ...AppTheme.shadow.card,
   },
@@ -146,7 +146,9 @@ const styles = StyleSheet.create({
     left: 12,
     top: 12,
     borderRadius: 999,
-    backgroundColor: '#FFFFFFDE',
+    backgroundColor: AppTheme.colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
     paddingHorizontal: 10,
     paddingVertical: 6,
     flexDirection: 'row',
@@ -214,6 +216,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
     borderRadius: 12,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E6B56266',
     ...AppTheme.shadow.soft,
   },
   button: {
@@ -230,9 +234,9 @@ const styles = StyleSheet.create({
   },
   notFound: {
     borderRadius: AppTheme.radius.lg,
-    backgroundColor: AppTheme.colors.surface,
+    backgroundColor: AppTheme.colors.surfaceElevated,
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
+    borderColor: AppTheme.colors.borderStrong,
     padding: 18,
   },
   notFoundText: {

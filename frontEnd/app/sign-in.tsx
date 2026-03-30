@@ -1,15 +1,18 @@
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { AuthForm } from '@/components/auth-form';
 import { PageShell } from '@/components/page-shell';
 import { AppTheme } from '@/constants/app-theme';
+import { getDeviceClass } from '@/constants/responsive';
 import { useAuth } from '@/context/auth-context';
 import { AppRoutes } from '@/routes/app-routes';
 
 export default function SignInScreen() {
+  const { width, height } = useWindowDimensions();
+  const { isTablet, isCompact } = getDeviceClass(width, height);
   const { signIn } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -32,7 +35,12 @@ export default function SignInScreen() {
 
   return (
     <PageShell>
-      <Animated.View entering={FadeInDown.duration(420)} style={styles.wrap}>
+      <Animated.View entering={FadeInDown.duration(420)} style={[styles.wrap, isTablet && styles.wrapTablet]}>
+        <View style={styles.head}>
+          <Text style={[styles.headTitle, isCompact && styles.headTitleCompact]}>Sign In</Text>
+          <Text style={styles.headSub}>Access your account and continue shopping.</Text>
+        </View>
+
         <AuthForm mode="signin" onSubmit={onSubmit} error={error} loading={loading} />
 
         <View style={styles.row}>
@@ -51,6 +59,27 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   wrap: {
     gap: 14,
+    width: '100%',
+    maxWidth: 560,
+    alignSelf: 'center',
+  },
+  wrapTablet: {
+    maxWidth: 640,
+  },
+  head: {
+    gap: 2,
+  },
+  headTitle: {
+    color: AppTheme.colors.text,
+    fontSize: 30,
+    fontWeight: '900',
+  },
+  headTitleCompact: {
+    fontSize: 26,
+  },
+  headSub: {
+    color: AppTheme.colors.textSoft,
+    fontSize: 13,
   },
   row: {
     flexDirection: 'row',

@@ -1,17 +1,20 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { CartItem } from '@/components/cart-item';
 import { LoadingSkeleton } from '@/components/loading-skeleton';
 import { PageShell } from '@/components/page-shell';
 import { AppTheme } from '@/constants/app-theme';
+import { getDeviceClass } from '@/constants/responsive';
 import { useAuth } from '@/context/auth-context';
 import { useCart } from '@/context/cart-context';
 import { AppRoutes } from '@/routes/app-routes';
 
 export default function CartScreen() {
+  const { width, height } = useWindowDimensions();
+  const { isTablet, isCompact } = getDeviceClass(width, height);
   const { isAuthenticated, isReady } = useAuth();
   const { items, subtotal, removeFromCart, updateQuantity, isReady: cartReady } = useCart();
 
@@ -35,8 +38,8 @@ export default function CartScreen() {
 
   return (
     <PageShell>
-      <Animated.View entering={FadeIn.duration(320)}>
-        <Text style={styles.title}>Your Cart</Text>
+      <Animated.View entering={FadeIn.duration(320)} style={styles.headerWrap}>
+        <Text style={[styles.title, isTablet && styles.titleTablet, isCompact && styles.titleCompact]}>Your Cart</Text>
         <Text style={styles.subTitle}>Review your selected products before checkout.</Text>
       </Animated.View>
 
@@ -71,10 +74,19 @@ export default function CartScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerWrap: {
+    gap: 2,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '900',
     color: AppTheme.colors.text,
+  },
+  titleTablet: {
+    fontSize: 34,
+  },
+  titleCompact: {
+    fontSize: 25,
   },
   subTitle: {
     color: AppTheme.colors.textSoft,
@@ -83,11 +95,12 @@ const styles = StyleSheet.create({
   emptyCard: {
     borderRadius: AppTheme.radius.lg,
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
-    backgroundColor: AppTheme.colors.surface,
+    borderColor: AppTheme.colors.borderStrong,
+    backgroundColor: AppTheme.colors.surfaceElevated,
     padding: 16,
     alignItems: 'center',
     gap: 6,
+    ...AppTheme.shadow.soft,
   },
   emptyTitle: {
     color: AppTheme.colors.text,
@@ -101,24 +114,25 @@ const styles = StyleSheet.create({
     backgroundColor: AppTheme.colors.primary,
     borderRadius: 999,
     paddingHorizontal: 16,
-    paddingVertical: 9,
+    paddingVertical: 10,
   },
   shopBtnText: {
     color: 'white',
-    fontWeight: '700',
+    fontWeight: '800',
   },
   summary: {
     borderRadius: AppTheme.radius.lg,
-    backgroundColor: '#E7F6F2',
+    backgroundColor: AppTheme.colors.surfaceSoft,
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
+    borderColor: AppTheme.colors.borderStrong,
     padding: 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    ...AppTheme.shadow.soft,
   },
   summaryLabel: {
-    color: AppTheme.colors.textSoft,
+    color: AppTheme.colors.textMuted,
     fontWeight: '700',
   },
   summaryValue: {

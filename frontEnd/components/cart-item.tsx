@@ -45,8 +45,9 @@ export function CartItem({ item, onDecrease, onIncrease, onRemove }: Props) {
 const styles = StyleSheet.create({
   card: {
     borderRadius: AppTheme.radius.lg,
-    backgroundColor: '#FFFFFFF2',
-    borderWidth: 0,
+    backgroundColor: AppTheme.colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
     padding: 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -59,16 +60,16 @@ const styles = StyleSheet.create({
   },
   title: {
     color: AppTheme.colors.text,
-    fontWeight: '700',
-    fontSize: 15,
+    fontWeight: '800',
+    fontSize: 16,
   },
   meta: {
-    color: AppTheme.colors.textSoft,
+    color: AppTheme.colors.textMuted,
     fontSize: 12,
   },
   price: {
     color: AppTheme.colors.primaryDark,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   rightCol: {
     alignItems: 'flex-end',
@@ -78,26 +79,33 @@ const styles = StyleSheet.create({
   qtyRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    borderRadius: 999,
+    backgroundColor: '#FBF7F0',
+    paddingHorizontal: 4,
+    paddingVertical: 3,
   },
   iconBtn: {
     width: 30,
     height: 30,
     borderRadius: 10,
-    borderWidth: 0,
-    backgroundColor: '#F7EFE4',
+    borderWidth: 1,
+    borderColor: '#EADFCF',
+    backgroundColor: AppTheme.colors.mutedBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   qty: {
-    width: 20,
+    width: 22,
     textAlign: 'center',
     color: AppTheme.colors.text,
     fontWeight: '700',
   },
   remove: {
-    color: AppTheme.colors.danger,
-    fontWeight: '700',
+    color: '#C35353',
+    fontWeight: '800',
     fontSize: 12,
   },
 });

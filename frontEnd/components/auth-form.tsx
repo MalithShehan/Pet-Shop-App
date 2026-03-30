@@ -35,14 +35,17 @@ export function AuthForm({ mode, onSubmit, error, loading }: Props) {
   };
 
   const title = mode === 'signup' ? 'Create your account' : 'Welcome back';
+  const subtitle = mode === 'signup' ? 'Set up your profile in a few steps.' : 'Sign in to continue your pet journey.';
 
   return (
     <View style={[styles.card, isLargePhone && styles.cardLargePhone, isTablet && styles.cardTablet]}>
       <Text style={[styles.title, isTablet && styles.titleTablet]}>{title}</Text>
+      <Text style={styles.subtitle}>{subtitle}</Text>
 
       {mode === 'signup' && (
         <TextInput
           placeholder="Your full name"
+          placeholderTextColor={AppTheme.colors.textMuted}
           value={values.name}
           onChangeText={(text) => update('name', text)}
           style={[styles.input, isTablet && styles.inputTablet]}
@@ -51,6 +54,7 @@ export function AuthForm({ mode, onSubmit, error, loading }: Props) {
 
       <TextInput
         placeholder="Email"
+        placeholderTextColor={AppTheme.colors.textMuted}
         value={values.email}
         onChangeText={(text) => update('email', text)}
         keyboardType="email-address"
@@ -60,6 +64,7 @@ export function AuthForm({ mode, onSubmit, error, loading }: Props) {
 
       <TextInput
         placeholder="Password"
+        placeholderTextColor={AppTheme.colors.textMuted}
         value={values.password}
         onChangeText={(text) => update('password', text)}
         secureTextEntry
@@ -86,11 +91,11 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 460,
     alignSelf: 'center',
-    backgroundColor: '#FFFFFFF2',
+    backgroundColor: AppTheme.colors.surfaceElevated,
     borderRadius: AppTheme.radius.lg,
     padding: 18,
-    borderWidth: 0,
-    borderColor: AppTheme.colors.border,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.borderStrong,
     gap: 11,
     ...AppTheme.shadow.card,
   },
@@ -105,14 +110,19 @@ const styles = StyleSheet.create({
     color: AppTheme.colors.text,
     fontWeight: '900',
     fontSize: 24,
-    marginBottom: 6,
+  },
+  subtitle: {
+    color: AppTheme.colors.textMuted,
+    fontSize: 13,
+    marginTop: -4,
+    marginBottom: 2,
   },
   titleTablet: {
     fontSize: 28,
   },
   input: {
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
+    borderColor: AppTheme.colors.borderStrong,
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -127,7 +137,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   buttonWrap: {
-    marginTop: 4,
+    marginTop: 6,
     borderRadius: 16,
     overflow: 'hidden',
   },

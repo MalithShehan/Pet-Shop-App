@@ -1,11 +1,15 @@
-import { Alert, Pressable, StyleSheet, Text, TextInput } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { PageShell } from '@/components/page-shell';
 import { AppTheme } from '@/constants/app-theme';
+import { getDeviceClass } from '@/constants/responsive';
 
 export default function ContactScreen() {
+  const { width, height } = useWindowDimensions();
+  const { isTablet, isCompact } = getDeviceClass(width, height);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -24,13 +28,23 @@ export default function ContactScreen() {
 
   return (
     <PageShell>
-      <Animated.View entering={FadeInDown.duration(420)} style={styles.card}>
-        <Text style={styles.title}>Contact Us</Text>
+      <Animated.View entering={FadeInDown.duration(420)} style={[styles.card, isTablet && styles.cardTablet]}>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>SUPPORT</Text>
+        </View>
+        <Text style={[styles.title, isCompact && styles.titleCompact]}>Contact Us</Text>
         <Text style={styles.sub}>Need help choosing a pet? Send us a message.</Text>
 
-        <TextInput placeholder="Name" value={name} onChangeText={setName} style={styles.input} />
+        <TextInput
+          placeholder="Name"
+          placeholderTextColor={AppTheme.colors.textMuted}
+          value={name}
+          onChangeText={setName}
+          style={styles.input}
+        />
         <TextInput
           placeholder="Email"
+          placeholderTextColor={AppTheme.colors.textMuted}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -39,6 +53,7 @@ export default function ContactScreen() {
         />
         <TextInput
           placeholder="Message"
+          placeholderTextColor={AppTheme.colors.textMuted}
           value={message}
           onChangeText={setMessage}
           multiline
@@ -46,8 +61,10 @@ export default function ContactScreen() {
           style={[styles.input, styles.textArea]}
         />
 
-        <Pressable style={styles.button} onPress={submit}>
-          <Text style={styles.buttonText}>Send Message</Text>
+        <Pressable style={styles.buttonWrap} onPress={submit}>
+          <LinearGradient colors={[AppTheme.colors.primaryDark, AppTheme.colors.primary]} style={styles.button}>
+            <Text style={styles.buttonText}>Send Message</Text>
+          </LinearGradient>
         </Pressable>
       </Animated.View>
     </PageShell>
@@ -56,17 +73,43 @@ export default function ContactScreen() {
 
 const styles = StyleSheet.create({
   card: {
+    width: '100%',
+    maxWidth: 760,
+    alignSelf: 'center',
     borderRadius: AppTheme.radius.xl,
-    backgroundColor: '#FFFFFFF2',
-    borderWidth: 0,
-    padding: 18,
+    backgroundColor: AppTheme.colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.borderStrong,
+    padding: 20,
     gap: 10,
     ...AppTheme.shadow.soft,
+  },
+  cardTablet: {
+    maxWidth: 860,
+    padding: 24,
+  },
+  badge: {
+    alignSelf: 'flex-start',
+    borderRadius: 999,
+    backgroundColor: AppTheme.colors.mutedBg,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  badgeText: {
+    color: AppTheme.colors.primaryDark,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   title: {
     color: AppTheme.colors.text,
     fontWeight: '900',
-    fontSize: 28,
+    fontSize: 30,
+  },
+  titleCompact: {
+    fontSize: 26,
   },
   sub: {
     color: AppTheme.colors.textSoft,
@@ -75,7 +118,7 @@ const styles = StyleSheet.create({
   input: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
+    borderColor: AppTheme.colors.borderStrong,
     backgroundColor: '#FAF7F2',
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -85,8 +128,12 @@ const styles = StyleSheet.create({
     minHeight: 110,
     textAlignVertical: 'top',
   },
+  buttonWrap: {
+    marginTop: 2,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
   button: {
-    backgroundColor: AppTheme.colors.primary,
     paddingVertical: 13,
     borderRadius: 16,
     alignItems: 'center',
