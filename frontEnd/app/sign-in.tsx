@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     color: AppTheme.colors.textSoft,
   },
   link: {
-    color: AppTheme.colors.primaryDark,
+    color: AppTheme.colors.primary,
     fontWeight: '800',
   },
 });

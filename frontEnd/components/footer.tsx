@@ -1,12 +1,18 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { AppTheme } from '@/constants/app-theme';
+import { getDeviceClass } from '@/constants/responsive';
 
 export function Footer() {
+  const { width, height } = useWindowDimensions();
+  const { isTablet, isLandscape } = getDeviceClass(width, height);
+
   return (
     <View style={styles.wrap}>
-      <LinearGradient colors={['#FFFFFFF0', '#FFFFFFE9']} style={styles.panel}>
+      <LinearGradient
+        colors={['#FFFFFFF0', '#FFFFFFE9']}
+        style={[styles.panel, isTablet && styles.panelTablet, isLandscape && !isTablet && styles.panelLandscape]}>
         <Text style={styles.title}>Pet Shop Mobile</Text>
         <Text style={styles.caption}>Adopt responsibly. Love endlessly.</Text>
 
@@ -28,8 +34,11 @@ export function Footer() {
 const styles = StyleSheet.create({
   wrap: {
     marginTop: 20,
+    alignItems: 'center',
   },
   panel: {
+    width: '100%',
+    maxWidth: 760,
     borderRadius: AppTheme.radius.lg,
     borderWidth: 0,
     paddingHorizontal: 14,
@@ -37,6 +46,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 5,
     ...AppTheme.shadow.soft,
+  },
+  panelTablet: {
+    maxWidth: 840,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+  },
+  panelLandscape: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   title: {
     fontWeight: '900',
