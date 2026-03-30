@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-na
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { AppTheme } from '@/constants/app-theme';
+import { getDeviceClass } from '@/constants/responsive';
 import { ProductItem, categoryLabelMap, subCategoryLabelMap } from '@/data/pets';
 
 type Props = {
@@ -20,9 +21,9 @@ const categoryIconMap = {
 } as const;
 
 export function ProductCard({ item, index = 0 }: Props) {
-  const { width } = useWindowDimensions();
-  const isTablet = width >= 768;
-  const imageHeight = isTablet ? 232 : width < 360 ? 164 : 182;
+  const { width, height } = useWindowDimensions();
+  const { isTablet, isLandscape, isCompact } = getDeviceClass(width, height);
+  const imageHeight = isTablet ? (isLandscape ? 250 : 232) : isLandscape ? 152 : isCompact ? 164 : 182;
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -39,7 +40,7 @@ export function ProductCard({ item, index = 0 }: Props) {
         onPressOut={() => {
           scale.value = withTiming(1, { duration: 120 });
         }}
-        style={styles.card}>
+        style={[styles.card, isTablet && styles.cardTablet, isLandscape && !isTablet && styles.cardLandscape]}>
         <View style={styles.imageWrap}>
           <Image source={{ uri: item.image }} style={[styles.image, { height: imageHeight }]} contentFit="cover" />
           <LinearGradient colors={['transparent', AppTheme.colors.imageOverlayStrong]} style={styles.imageShade} />
@@ -51,12 +52,16 @@ export function ProductCard({ item, index = 0 }: Props) {
             <Ionicons name="heart-outline" size={15} color={AppTheme.colors.text} />
           </View>
         </View>
-        <View style={styles.body}>
+        <View style={[styles.body, isLandscape && !isTablet && styles.bodyLandscape]}>
           <View style={styles.titleRow}>
-            <Text style={[styles.title, isTablet && styles.titleTablet]}>{item.name}</Text>
-            <Text style={[styles.price, isTablet && styles.priceTablet]}>${item.price.toFixed(2)}</Text>
+            <Text style={[styles.title, isTablet && styles.titleTablet, isLandscape && !isTablet && styles.titleLandscape]}>
+              {item.name}
+            </Text>
+            <Text style={[styles.price, isTablet && styles.priceTablet, isLandscape && !isTablet && styles.priceLandscape]}>
+              ${item.price.toFixed(2)}
+            </Text>
           </View>
-          <Text numberOfLines={2} style={styles.description}>
+          <Text numberOfLines={2} style={[styles.description, isLandscape && !isTablet && styles.descriptionLandscape]}>
             {item.description}
           </Text>
           <View style={styles.cardFooter}>
@@ -75,11 +80,18 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: AppTheme.radius.lg,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFFEC',
-    borderWidth: 1,
-    borderColor: AppTheme.colors.border,
+    backgroundColor: '#FFFFFFF3',
+    borderWidth: 0,
     marginBottom: 14,
     ...AppTheme.shadow.card,
+  },
+  cardTablet: {
+    maxWidth: 700,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  cardLandscape: {
+    marginBottom: 10,
   },
   imageWrap: {
     position: 'relative',
@@ -99,7 +111,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     left: 10,
-    backgroundColor: '#FFFFFFDD',
+    backgroundColor: '#FCE8CA',
     borderRadius: 999,
     paddingHorizontal: 11,
     paddingVertical: 5,
@@ -121,11 +133,16 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFFD4',
+    backgroundColor: '#FFFFFFF1',
   },
   body: {
     padding: 14,
     gap: 7,
+  },
+  bodyLandscape: {
+    paddingVertical: 12,
+    paddingHorizontal: 13,
+    gap: 6,
   },
   titleRow: {
     flexDirection: 'row',
@@ -142,10 +159,17 @@ const styles = StyleSheet.create({
   titleTablet: {
     fontSize: 18,
   },
+  titleLandscape: {
+    fontSize: 15,
+  },
   description: {
     color: AppTheme.colors.textSoft,
     fontSize: 13,
     lineHeight: 19,
+  },
+  descriptionLandscape: {
+    fontSize: 12,
+    lineHeight: 17,
   },
   price: {
     color: AppTheme.colors.text,
@@ -154,6 +178,9 @@ const styles = StyleSheet.create({
   },
   priceTablet: {
     fontSize: 20,
+  },
+  priceLandscape: {
+    fontSize: 16,
   },
   cardFooter: {
     marginTop: 2,
@@ -170,12 +197,11 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderWidth: 1,
-    borderColor: AppTheme.colors.border,
-    backgroundColor: '#FFFFFFB8',
+    borderWidth: 0,
+    backgroundColor: '#F9E7CC',
   },
   viewTagText: {
-    color: AppTheme.colors.primaryDark,
+    color: AppTheme.colors.text,
     fontWeight: '800',
     fontSize: 11,
   },

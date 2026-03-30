@@ -1,21 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { AppTheme } from '@/constants/app-theme';
+import { getDeviceClass } from '@/constants/responsive';
 import { useAuth } from '@/context/auth-context';
 import { useCart } from '@/context/cart-context';
 import { AppRoutes } from '@/routes/app-routes';
 
 export function Navbar() {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const pathname = usePathname();
   const { user, isAuthenticated, signOut } = useAuth();
   const { cartCount } = useCart();
-  const isCompact = width < 360;
-  const isTablet = width >= 768;
+  const { isTablet, isIPhone14Pro, isLandscape, isNarrowWidth } = getDeviceClass(width, height);
+  const firstName = user?.name?.trim().split(' ')[0] ?? 'Guest';
+  const shouldStackHeader = isNarrowWidth && !isLandscape;
+  const showSecurePill = !shouldStackHeader;
+  const shopLabel = pathname === AppRoutes.shop ? (shouldStackHeader ? 'Shop On' : 'Shop Active') : shouldStackHeader ? 'Shop' : 'Browse Shop';
 
   const goToShop = () => router.push(AppRoutes.shop as never);
   const goToCart = () => router.push(AppRoutes.cart as never);
@@ -31,213 +34,255 @@ export function Navbar() {
   };
 
   return (
-    <Animated.View entering={FadeInDown.duration(420)} style={[styles.wrap, isTablet && styles.wrapTablet]}>
-      <LinearGradient colors={['#FFFFFFEE', '#FFFFFFD3']} style={styles.inner}>
-        <View style={[styles.topRow, isCompact && styles.topRowCompact]}>
-          <Pressable onPress={() => router.push(AppRoutes.home as never)} style={styles.brandRow}>
-            <View style={styles.brandIconWrap}>
-              <Ionicons name="paw" size={16} color={AppTheme.colors.primaryDark} />
-            </View>
-            <View>
-              <Text style={styles.brandText}>PetNest</Text>
-              <Text style={styles.brandSub}>Premium Pet Boutique</Text>
-            </View>
-          </Pressable>
+    <Animated.View
+      entering={FadeInDown.duration(320)}
+      style={[
+        styles.container,
+        isTablet && styles.containerTablet,
+        isIPhone14Pro && styles.containerIPhone14Pro,
+        isLandscape && !isTablet && styles.containerLandscape,
+      ]}>
+      <View style={[styles.headerRow, shouldStackHeader && styles.headerRowCompact]}>
+        <Pressable onPress={() => router.push(AppRoutes.home as never)} style={styles.brandRow}>
+          <View style={styles.brandIconWrap}>
+            <Ionicons name="paw" size={14} color="#FFFFFF" />
+          </View>
+          <View style={styles.brandTextBlock}>
+            <Text numberOfLines={1} style={[styles.brandTitle, isIPhone14Pro && styles.brandTitleIPhone14Pro]}>
+              PetNest
+            </Text>
+            <Text numberOfLines={1} style={styles.brandSub}>
+              {isAuthenticated ? `Welcome back, ${firstName}` : 'Welcome, find your next companion'}
+            </Text>
+          </View>
+        </Pressable>
 
+        <View style={[styles.actionRow, shouldStackHeader && styles.actionRowCompact]}>
           <Pressable style={styles.cartBtn} onPress={goToCart}>
-            <Ionicons name="cart-outline" size={18} color={AppTheme.colors.text} />
+            <Ionicons name="bag-handle-outline" size={17} color={AppTheme.colors.text} />
             {cartCount > 0 && (
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>{cartCount}</Text>
+                <Text style={styles.badgeText}>{cartCount > 99 ? '99+' : cartCount}</Text>
               </View>
             )}
           </Pressable>
-        </View>
 
-        <View style={[styles.actions, isCompact && styles.actionsCompact]}>
-          {pathname !== AppRoutes.shop && (
-            <Pressable style={[styles.linkBtn, isCompact && styles.linkBtnCompact]} onPress={goToShop}>
-              <Ionicons name="sparkles-outline" size={13} color={AppTheme.colors.primaryDark} />
-              <Text style={styles.linkText}>Shop</Text>
-            </Pressable>
-          )}
-
-          <Pressable onPress={handleAuthAction} style={styles.authBtnWrap}>
-            <LinearGradient
-              colors={[AppTheme.colors.primaryDark, AppTheme.colors.primary]}
-              style={[styles.authBtn, isTablet && styles.authBtnTablet]}>
-              <Text style={styles.authText}>{isAuthenticated ? 'Logout' : 'Login'}</Text>
-            </LinearGradient>
+          <Pressable style={styles.authBtn} onPress={handleAuthAction}>
+            <Ionicons name={isAuthenticated ? 'log-out-outline' : 'log-in-outline'} size={14} color={AppTheme.colors.text} />
+            <Text style={styles.authText}>{isAuthenticated ? 'Sign out' : 'Sign in'}</Text>
           </Pressable>
         </View>
+      </View>
 
-        <Text style={styles.userName}>{isAuthenticated ? `Hi, ${user?.name}` : 'Welcome, guest'}</Text>
-      </LinearGradient>
+      <View
+        style={[
+          styles.utilityRow,
+          shouldStackHeader && styles.utilityRowCompact,
+          isIPhone14Pro && styles.utilityRowIPhone14Pro,
+          isLandscape && !isTablet && styles.utilityRowLandscape,
+        ]}>
+        <Pressable
+          style={[styles.shopButton, pathname === AppRoutes.shop && styles.shopButtonActive]}
+          onPress={goToShop}
+          disabled={pathname === AppRoutes.shop}>
+          <Ionicons
+            name={pathname === AppRoutes.shop ? 'storefront' : 'storefront-outline'}
+            size={13}
+            color={pathname === AppRoutes.shop ? '#2D1A00' : AppTheme.colors.text}
+          />
+          <Text style={[styles.shopButtonText, pathname === AppRoutes.shop && styles.shopButtonTextActive]}>
+            {shopLabel}
+          </Text>
+        </Pressable>
 
-      <View style={styles.glowLine} />
-      <View style={styles.glowDot} />
-      <View style={styles.glowDotTwo} />
+        {showSecurePill && (
+          <View style={styles.securePill}>
+            <Ionicons name="shield-checkmark-outline" size={13} color="#5B5348" />
+            <Text style={styles.secureText}>Secure checkout</Text>
+          </View>
+        )}
+      </View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    backgroundColor: '#FFFFFFC9',
-    borderWidth: 0,
-    borderRadius: AppTheme.radius.xl,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    marginBottom: 14,
-    ...AppTheme.shadow.card,
-  },
-  wrapTablet: {
+  container: {
+    backgroundColor: '#FFFFFFED',
+    borderWidth: 1,
+    borderColor: '#E7DFD2',
+    borderRadius: 22,
     paddingHorizontal: 14,
+    paddingVertical: 14,
+    marginBottom: 14,
+    ...AppTheme.shadow.soft,
+  },
+  containerTablet: {
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+  },
+  containerIPhone14Pro: {
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
+  },
+  containerLandscape: {
     paddingVertical: 12,
   },
-  inner: {
-    borderRadius: AppTheme.radius.lg,
-    borderWidth: 0,
-    paddingHorizontal: 12,
-    paddingTop: 11,
-    paddingBottom: 10,
-    gap: 10,
-  },
-  topRow: {
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 8,
+    gap: 10,
   },
-  topRowCompact: {
-    alignItems: 'flex-start',
+  headerRowCompact: {
+    alignItems: 'stretch',
+    flexDirection: 'column',
   },
   brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 9,
+    gap: 10,
+    flex: 1,
+  },
+  brandTextBlock: {
     flex: 1,
   },
   brandIconWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 999,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E7F6F2',
+    backgroundColor: '#1A1A19',
     borderWidth: 1,
-    borderColor: '#CDEAE4',
+    borderColor: '#1A1A19',
   },
-  brandText: {
+  brandTitle: {
     color: AppTheme.colors.text,
-    fontWeight: '900',
+    fontWeight: '800',
+    fontSize: 16,
+    lineHeight: 18,
+  },
+  brandTitleIPhone14Pro: {
     fontSize: 17,
-    lineHeight: 20,
+    lineHeight: 19,
   },
   brandSub: {
     color: AppTheme.colors.textSoft,
     fontSize: 11,
-    fontWeight: '600',
-    marginTop: 1,
+    fontWeight: '500',
+    marginTop: 3,
   },
-  actions: {
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 0,
+  },
+  actionRowCompact: {
+    justifyContent: 'flex-end',
+  },
+  utilityRow: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: 10,
-  },
-  actionsCompact: {
     justifyContent: 'space-between',
+    gap: 8,
+    marginTop: 10,
   },
-  linkBtn: {
-    backgroundColor: '#EAF8F4',
+  utilityRowIPhone14Pro: {
+    marginTop: 12,
+  },
+  utilityRowCompact: {
+    justifyContent: 'flex-start',
+  },
+  utilityRowLandscape: {
+    flexWrap: 'nowrap',
+  },
+  shopButton: {
+    backgroundColor: '#F7F2E8',
+    minHeight: 34,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#D6ECE7',
+    borderColor: '#E8E0D2',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  linkBtnCompact: {
-    paddingHorizontal: 10,
+  shopButtonActive: {
+    backgroundColor: '#F8BE5F',
+    borderColor: '#E5A443',
   },
-  linkText: {
+  shopButtonText: {
     color: AppTheme.colors.text,
     fontWeight: '700',
+    fontSize: 12,
   },
-  cartBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#EEF8F6',
+  shopButtonTextActive: {
+    color: '#2D1A00',
+  },
+  securePill: {
+    minHeight: 34,
+    paddingHorizontal: 12,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#D3EBE5',
-    position: 'relative',
-  },
-  badge: {
-    position: 'absolute',
-    right: -4,
-    top: -5,
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: AppTheme.colors.accent,
+    borderColor: '#EAE3D7',
+    backgroundColor: '#FCFAF7',
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 3,
+    gap: 6,
   },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#543900',
-  },
-  authBtnWrap: {
-    borderRadius: 999,
-    overflow: 'hidden',
-  },
-  authBtn: {
-    minWidth: 92,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 999,
-    alignItems: 'center',
-  },
-  authBtnTablet: {
-    minWidth: 116,
-  },
-  authText: {
-    color: 'white',
-    fontWeight: '800',
-  },
-  userName: {
-    marginTop: -2,
-    color: AppTheme.colors.textSoft,
+  secureText: {
+    color: '#5B5348',
     fontSize: 12,
     fontWeight: '600',
   },
-  glowLine: {
-    display: 'none',
+  cartBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F7F2E8',
+    borderWidth: 1,
+    borderColor: '#E8E0D2',
+    position: 'relative',
   },
-  glowDot: {
-    position: 'absolute',
-    width: 10,
-    height: 10,
-    borderRadius: 999,
-    backgroundColor: '#FFFFFF70',
-    top: 10,
-    right: 14,
+  authBtn: {
+    minHeight: 36,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E8E0D2',
+    backgroundColor: '#F7F2E8',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
-  glowDotTwo: {
+  badge: {
     position: 'absolute',
-    width: 7,
-    height: 7,
-    borderRadius: 999,
-    backgroundColor: '#FFFFFF6A',
-    top: 24,
-    right: 29,
+    right: -5,
+    top: -6,
+    minWidth: 17,
+    height: 17,
+    borderRadius: 8.5,
+    backgroundColor: AppTheme.colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#2D1900',
+  },
+  authText: {
+    color: AppTheme.colors.text,
+    fontWeight: '700',
+    fontSize: 12,
   },
 });

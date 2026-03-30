@@ -1,27 +1,46 @@
 import { PropsWithChildren } from 'react';
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useSegments } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Footer } from '@/components/footer';
 import { Navbar } from '@/components/navbar';
 import { AppTheme } from '@/constants/app-theme';
+import { getDeviceClass } from '@/constants/responsive';
 
 export function PageShell({ children }: PropsWithChildren) {
-  const { width } = useWindowDimensions();
-  const horizontalPadding = width >= 768 ? 24 : 16;
-  const contentMaxWidth = width >= 1024 ? 860 : width >= 768 ? 760 : 560;
+  const { width, height } = useWindowDimensions();
+  const segments = useSegments();
+  const insets = useSafeAreaInsets();
+  const { isTablet, isLargePhone, isIPhone14Pro, isLandscape } = getDeviceClass(width, height);
+  const inTabs = segments[0] === '(tabs)';
+
+  const horizontalPadding = isTablet ? (isLandscape ? 32 : 24) : isIPhone14Pro ? 20 : isLargePhone ? 18 : 14;
+  const contentMaxWidth = width >= 1280 ? 1080 : isTablet ? (isLandscape ? 980 : 760) : isLandscape ? 760 : 560;
+  const tabOverlayPadding = isTablet ? 102 : isIPhone14Pro ? 112 : isLargePhone ? 102 : 94;
+  const bottomPadding = (inTabs ? tabOverlayPadding : 24) + insets.bottom;
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
       <LinearGradient colors={[AppTheme.colors.heroA, AppTheme.colors.heroB, AppTheme.colors.heroC, AppTheme.colors.heroD]} style={styles.bg}>
         <Animated.View entering={FadeIn.duration(500)} style={[styles.blob, styles.blobTop]} />
         <Animated.View entering={FadeInUp.delay(80).duration(550)} style={[styles.blob, styles.blobBottom]} />
         <Animated.View entering={FadeInUp.delay(140).duration(600)} style={[styles.ring, styles.ringTop]} />
         <Animated.View entering={FadeIn.delay(180).duration(500)} style={[styles.ring, styles.ringBottom]} />
 
-        <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingHorizontal: horizontalPadding }]}>
+        <ScrollView
+          style={styles.screen}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[
+            styles.content,
+            {
+              paddingHorizontal: horizontalPadding,
+              paddingTop: isIPhone14Pro ? 14 : isLargePhone ? 13 : 12,
+              paddingBottom: bottomPadding,
+            },
+          ]}>
           <View style={[styles.frame, { maxWidth: contentMaxWidth }]}> 
             <Navbar />
             <View style={styles.main}>{children}</View>

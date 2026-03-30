@@ -6,7 +6,7 @@ import { AppTheme } from '@/constants/app-theme';
 export function Footer() {
   return (
     <View style={styles.wrap}>
-      <LinearGradient colors={['#FFFFFFE8', '#FFFFFFD0']} style={styles.panel}>
+      <LinearGradient colors={['#FFFFFFF0', '#FFFFFFE9']} style={styles.panel}>
         <Text style={styles.title}>Pet Shop Mobile</Text>
         <Text style={styles.caption}>Adopt responsibly. Love endlessly.</Text>
 
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     borderRadius: AppTheme.radius.lg,
     borderWidth: 0,
     paddingHorizontal: 14,
-    paddingVertical: 14,
+    paddingVertical: 12,
     alignItems: 'center',
     gap: 5,
     ...AppTheme.shadow.soft,
@@ -57,13 +57,13 @@ const styles = StyleSheet.create({
   tag: {
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: '#D8EDE8',
-    backgroundColor: '#F0FBF8',
+    borderColor: '#EEE3D6',
+    backgroundColor: '#F9F4ED',
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
   tagText: {
-    color: AppTheme.colors.primaryDark,
+    color: AppTheme.colors.text,
     fontSize: 11,
     fontWeight: '800',
   },
