@@ -1,6 +1,8 @@
 import { Tabs } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -12,6 +14,7 @@ function TabIcon({
   focused,
   iconSize,
   slotSize,
+  activeSlotSize,
   showLabel,
 }: {
   name: React.ComponentProps<typeof IconSymbol>['name'];
@@ -19,36 +22,93 @@ function TabIcon({
   focused: boolean;
   iconSize: number;
   slotSize: number;
+  activeSlotSize: number;
   showLabel: boolean;
 }) {
-  const currentSlotSize = focused ? slotSize + 2 : slotSize;
+  if (focused) {
+    return (
+      <View style={styles.tabItemContent}>
+        <LinearGradient
+          colors={['#F8D99D', '#F4B549']}
+          start={{ x: 0.2, y: 0.1 }}
+          end={{ x: 0.8, y: 1 }}
+          style={[
+            styles.activeCircle,
+            {
+              width: activeSlotSize,
+              height: activeSlotSize,
+              borderRadius: Math.round(activeSlotSize / 2),
+            },
+          ]}>
+          <IconSymbol size={iconSize} name={name} color="#201A13" />
+        </LinearGradient>
+        {showLabel && <Text style={styles.tabLabelActive}>{label}</Text>}
+        {showLabel && <View style={styles.activePill} />}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.tabItemContent}>
       <View
         style={[
-          styles.iconSlot,
+          styles.inactiveCircle,
           {
-            width: currentSlotSize,
-            height: currentSlotSize,
-            borderRadius: Math.round(currentSlotSize / 3),
+            width: slotSize,
+            height: slotSize,
+            borderRadius: Math.round(slotSize / 2),
           },
-          focused ? styles.iconSlotActive : styles.iconSlotInactive,
         ]}>
-        <IconSymbol size={iconSize} name={name} color={focused ? '#1F1B16' : '#766F63'} />
+        <IconSymbol size={Math.max(iconSize - 1, 18)} name={name} color="#766F63" />
       </View>
-      {showLabel && <Text style={focused ? styles.tabLabelActive : styles.tabLabel}>{label}</Text>}
-      {showLabel && <View style={focused ? styles.activeIndicator : styles.indicatorPlaceholder} />}
+      {showLabel && <Text style={styles.tabLabel}>{label}</Text>}
+      {showLabel && <View style={styles.idlePill} />}
     </View>
   );
 }
 
+function TabDockBackground() {
+  return (
+    <View pointerEvents="none" style={styles.tabDockWrap}>
+      <LinearGradient
+        colors={['#FFFFFFD9', '#FFFFFFB8', '#FFF7EB9C']}
+        start={{ x: 0.1, y: 0 }}
+        end={{ x: 0.9, y: 1 }}
+        style={styles.tabDockBackground}
+      />
+      <View style={styles.tabDockHighlight} />
+    </View>
+  );
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
 export default function TabLayout() {
   const { width, height } = useWindowDimensions();
-  const { isTablet, isIPhone14Pro, isLargePhone, isLandscape, isNarrowWidth } = getDeviceClass(width, height);
-  const showLabel = isTablet || !isLandscape;
-  const iconSize = isTablet ? 24 : isLandscape ? 21 : isIPhone14Pro ? 24 : isLargePhone ? 23 : 22;
-  const slotSize = isTablet ? 42 : isLandscape ? 34 : isIPhone14Pro ? 40 : isLargePhone ? 38 : 36;
+  const insets = useSafeAreaInsets();
+  const { isTablet, isIPhone14Pro, isLargePhone, isLandscape, isNarrowWidth, shortSide } = getDeviceClass(width, height);
+
+  const showLabel = isTablet || (!isLandscape && shortSide >= 370);
+  const iconSize = isTablet ? (isLandscape ? 23 : 24) : shortSide >= 390 ? 22 : shortSide >= 360 ? 21 : 20;
+  const slotSize = isTablet
+    ? (isLandscape ? 40 : 42)
+    : showLabel
+      ? (isIPhone14Pro ? 38 : isLargePhone ? 37 : 35)
+      : shortSide >= 390
+        ? 36
+        : 34;
+  const activeSlotSize = slotSize + (showLabel ? 4 : 6);
+  const dockHorizontalInset = isTablet
+    ? clamp(Math.round(width * (isLandscape ? 0.16 : 0.12)), 84, 210)
+    : isLandscape
+      ? clamp(Math.round(width * 0.085), 28, 92)
+      : isNarrowWidth
+        ? 10
+        : clamp(Math.round(width * 0.045), 14, 24);
+  const dockHeight = isTablet ? (showLabel ? 92 : 78) : showLabel ? (isIPhone14Pro ? 90 : 84) : 70;
+  const dockBottom = Math.max(insets.bottom + (isTablet ? 8 : 4), isIPhone14Pro ? 12 : 8);
 
   return (
     <Tabs
@@ -59,27 +119,29 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
         tabBarHideOnKeyboard: true,
         tabBarShowLabel: false,
-        tabBarBackground: () => null,
+        tabBarBackground: () => <TabDockBackground />,
         tabBarStyle: {
           position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: isTablet ? 82 : showLabel ? (isIPhone14Pro ? 88 : 78) : 66,
+          left: dockHorizontalInset,
+          right: dockHorizontalInset,
+          bottom: dockBottom,
+          height: dockHeight,
           backgroundColor: 'transparent',
           borderTopWidth: 0,
           borderTopColor: 'transparent',
-          paddingTop: showLabel ? 6 : 4,
-          paddingBottom: isTablet ? 12 : showLabel ? (isIPhone14Pro ? 14 : 10) : 8,
-          paddingHorizontal: isTablet ? 16 : isNarrowWidth ? 6 : 10,
-          elevation: 0,
-          shadowColor: 'transparent',
-          shadowOpacity: 0,
-          shadowRadius: 0,
+          borderRadius: 32,
+          paddingTop: showLabel ? (isTablet ? 10 : 9) : 6,
+          paddingBottom: showLabel ? (isTablet ? 10 : 9) : 6,
+          paddingHorizontal: isTablet ? 14 : isNarrowWidth ? 6 : 8,
+          elevation: 7,
+          shadowColor: '#21170B',
+          shadowOffset: { width: 0, height: 9 },
+          shadowOpacity: 0.14,
+          shadowRadius: 18,
         },
         tabBarItemStyle: {
-          borderRadius: 12,
-          marginHorizontal: isTablet ? 4 : showLabel ? 2 : 1,
+          borderRadius: 14,
+          marginHorizontal: isTablet ? 5 : showLabel ? 2 : 1,
           paddingVertical: 0,
         },
         tabBarActiveBackgroundColor: 'transparent',
@@ -95,6 +157,7 @@ export default function TabLayout() {
               focused={focused}
               iconSize={iconSize}
               slotSize={slotSize}
+              activeSlotSize={activeSlotSize}
               showLabel={showLabel}
             />
           ),
@@ -111,6 +174,7 @@ export default function TabLayout() {
               focused={focused}
               iconSize={iconSize}
               slotSize={slotSize}
+              activeSlotSize={activeSlotSize}
               showLabel={showLabel}
             />
           ),
@@ -127,6 +191,7 @@ export default function TabLayout() {
               focused={focused}
               iconSize={iconSize}
               slotSize={slotSize}
+              activeSlotSize={activeSlotSize}
               showLabel={showLabel}
             />
           ),
@@ -143,6 +208,7 @@ export default function TabLayout() {
               focused={focused}
               iconSize={iconSize}
               slotSize={slotSize}
+              activeSlotSize={activeSlotSize}
               showLabel={showLabel}
             />
           ),
@@ -159,6 +225,7 @@ export default function TabLayout() {
               focused={focused}
               iconSize={iconSize}
               slotSize={slotSize}
+              activeSlotSize={activeSlotSize}
               showLabel={showLabel}
             />
           ),
@@ -169,48 +236,71 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
+  tabDockWrap: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  tabDockBackground: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 32,
+    borderWidth: 1,
+    borderColor: '#EEE3D4E6',
+  },
+  tabDockHighlight: {
+    position: 'absolute',
+    top: 10,
+    left: 18,
+    right: 18,
+    height: 1,
+    borderRadius: 99,
+    backgroundColor: '#FFFFFFC9',
+  },
   tabItemContent: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
+    gap: 4,
   },
-  iconSlot: {
+  activeCircle: {
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-  },
-  iconSlotActive: {
-    backgroundColor: '#F5ECDDCC',
     borderColor: '#EAD8B9E8',
+    shadowColor: '#B0761F',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  iconSlotInactive: {
-    backgroundColor: '#FFFFFF26',
-    borderColor: '#FFFFFF40',
+  inactiveCircle: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    backgroundColor: '#FFFFFF78',
+    borderColor: '#EFE4D5DE',
   },
   tabLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#6F695F',
+    color: '#6F675C',
     letterSpacing: 0.12,
   },
   tabLabelActive: {
     fontSize: 12,
-    fontWeight: '700',
-    color: '#2B251D',
+    fontWeight: '800',
+    color: '#2A231B',
     letterSpacing: 0.16,
   },
-  activeIndicator: {
-    width: 16,
-    height: 3,
-    borderRadius: 99,
-    backgroundColor: '#D49A33',
-    marginTop: 1,
-  },
-  indicatorPlaceholder: {
+  activePill: {
     width: 14,
     height: 3,
     borderRadius: 99,
-    backgroundColor: 'transparent',
     marginTop: 1,
+    backgroundColor: '#D89A32',
+  },
+  idlePill: {
+    width: 14,
+    height: 3,
+    borderRadius: 99,
+    marginTop: 1,
+    backgroundColor: 'transparent',
   },
 });
