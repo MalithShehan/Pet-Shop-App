@@ -1,18 +1,18 @@
 import React, { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { getStoredJson, setStoredJson } from '@/hooks/use-app-storage';
-import { PetItem } from '@/data/pets';
+import { ProductItem } from '@/data/pets';
 
 const CART_KEY = 'petshop_cart_v1';
 
-export type CartItem = PetItem & { quantity: number };
+export type CartItem = ProductItem & { quantity: number };
 
 type CartContextType = {
   items: CartItem[];
   cartCount: number;
   subtotal: number;
   isReady: boolean;
-  addToCart: (pet: PetItem, quantity?: number) => void;
+  addToCart: (product: ProductItem, quantity?: number) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -42,15 +42,15 @@ export function CartProvider({ children }: PropsWithChildren) {
     setStoredJson(CART_KEY, items);
   }, [isReady, items]);
 
-  const addToCart = useCallback((pet: PetItem, quantity = 1) => {
+  const addToCart = useCallback((product: ProductItem, quantity = 1) => {
     setItems((prev) => {
-      const existing = prev.find((item) => item.id === pet.id);
+      const existing = prev.find((item) => item.id === product.id);
       if (existing) {
         return prev.map((item) =>
-          item.id === pet.id ? { ...item, quantity: item.quantity + quantity } : item
+          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
         );
       }
-      return [...prev, { ...pet, quantity }];
+      return [...prev, { ...product, quantity }];
     });
   }, []);
 

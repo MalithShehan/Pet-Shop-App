@@ -9,7 +9,7 @@ type Props = {
   placeholder?: string;
 };
 
-export function SearchBar({ value, onChangeText, placeholder = 'Search pets...' }: Props) {
+export function SearchBar({ value, onChangeText, placeholder = 'Search products...' }: Props) {
   return (
     <View style={styles.wrap}>
       <Ionicons name="search" size={18} color={AppTheme.colors.textSoft} />
