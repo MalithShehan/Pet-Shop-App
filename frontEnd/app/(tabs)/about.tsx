@@ -23,19 +23,20 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   card: {
     borderRadius: AppTheme.radius.xl,
-    backgroundColor: AppTheme.colors.card,
-    borderWidth: 1,
-    borderColor: AppTheme.colors.border,
-    padding: 16,
-    gap: 10,
+    backgroundColor: '#FFFFFFF2',
+    borderWidth: 0,
+    padding: 18,
+    gap: 12,
+    ...AppTheme.shadow.soft,
   },
   title: {
     color: AppTheme.colors.text,
     fontWeight: '900',
-    fontSize: 30,
+    fontSize: 32,
   },
   text: {
     color: AppTheme.colors.textSoft,
-    lineHeight: 22,
+    lineHeight: 23,
+    fontSize: 14,
   },
 });
