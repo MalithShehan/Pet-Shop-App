@@ -1,17 +1,20 @@
 import React, { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 
 import { getStoredJson, setStoredJson } from '@/hooks/use-app-storage';
+import { fetchMe, loginUser, registerUser } from '@/services/auth-api';
 
-const USERS_KEY = 'petshop_users_v1';
-const SESSION_KEY = 'petshop_session_v1';
+const SESSION_KEY = 'petshop_session_v2';
 
 type AuthUser = {
+  id: string;
   name: string;
   email: string;
+  createdAt?: string;
 };
 
-type StoredUser = AuthUser & {
-  password: string;
+type AuthSession = {
+  token: string;
+  user: AuthUser;
 };
 
 type SignUpPayload = {
@@ -22,6 +25,7 @@ type SignUpPayload = {
 
 type AuthContextType = {
   user: AuthUser | null;
+  token: string | null;
   isReady: boolean;
   isAuthenticated: boolean;
   signUp: (payload: SignUpPayload) => Promise<{ ok: boolean; message?: string }>;
@@ -33,12 +37,32 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const bootstrap = async () => {
-      const session = await getStoredJson<AuthUser | null>(SESSION_KEY, null);
-      setUser(session);
+      const session = await getStoredJson<AuthSession | null>(SESSION_KEY, null);
+
+      if (!session?.token) {
+        setIsReady(true);
+        return;
+      }
+
+      try {
+        const me = await fetchMe(session.token);
+        setToken(session.token);
+        setUser(me.user);
+        await setStoredJson<AuthSession>(SESSION_KEY, {
+          token: session.token,
+          user: me.user,
+        });
+      } catch {
+        await setStoredJson<AuthSession | null>(SESSION_KEY, null);
+        setToken(null);
+        setUser(null);
+      }
+
       setIsReady(true);
     };
 
@@ -46,69 +70,67 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, []);
 
   const signUp = async ({ name, email, password }: SignUpPayload) => {
-    const normalizedEmail = email.trim().toLowerCase();
-    const normalizedName = name.trim();
+    try {
+      await registerUser({ name: name.trim(), email: email.trim(), password });
+      const login = await loginUser({ email: email.trim(), password });
 
-    const users = await getStoredJson<StoredUser[]>(USERS_KEY, []);
-    const existing = users.find((item) => item.email === normalizedEmail);
+      const session: AuthSession = {
+        token: login.token,
+        user: login.user,
+      };
 
-    if (existing) {
-      return { ok: false, message: 'Email is already registered.' };
+      await setStoredJson<AuthSession>(SESSION_KEY, session);
+      setToken(session.token);
+      setUser(session.user);
+
+      return { ok: true };
+    } catch (error) {
+      return {
+        ok: false,
+        message: error instanceof Error ? error.message : 'Unable to sign up.',
+      };
     }
-
-    const nextUser: StoredUser = {
-      name: normalizedName,
-      email: normalizedEmail,
-      password,
-    };
-
-    const sessionUser: AuthUser = {
-      name: normalizedName,
-      email: normalizedEmail,
-    };
-
-    await setStoredJson(USERS_KEY, [...users, nextUser]);
-    await setStoredJson(SESSION_KEY, sessionUser);
-    setUser(sessionUser);
-
-    return { ok: true };
   };
 
   const signIn = async (email: string, password: string) => {
-    const normalizedEmail = email.trim().toLowerCase();
-    const users = await getStoredJson<StoredUser[]>(USERS_KEY, []);
-    const matched = users.find((item) => item.email === normalizedEmail && item.password === password);
+    try {
+      const login = await loginUser({ email: email.trim(), password });
 
-    if (!matched) {
-      return { ok: false, message: 'Invalid email or password.' };
+      const session: AuthSession = {
+        token: login.token,
+        user: login.user,
+      };
+
+      await setStoredJson<AuthSession>(SESSION_KEY, session);
+      setToken(session.token);
+      setUser(session.user);
+
+      return { ok: true };
+    } catch (error) {
+      return {
+        ok: false,
+        message: error instanceof Error ? error.message : 'Unable to sign in.',
+      };
     }
-
-    const sessionUser: AuthUser = {
-      name: matched.name,
-      email: matched.email,
-    };
-
-    await setStoredJson(SESSION_KEY, sessionUser);
-    setUser(sessionUser);
-
-    return { ok: true };
   };
 
   const signOut = async () => {
-    await setStoredJson<AuthUser | null>(SESSION_KEY, null);
+    await setStoredJson<AuthSession | null>(SESSION_KEY, null);
+    setToken(null);
     setUser(null);
   };
 
   const value = useMemo(
     () => ({
       user,
+      token,
       isReady,
       isAuthenticated: !!user,
       signUp,
       signIn,
       signOut,
     }),
-    [isReady, user]
+    [isReady, token, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
