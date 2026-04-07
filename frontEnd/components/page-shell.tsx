@@ -8,7 +8,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Footer } from '@/components/footer';
 import { Navbar } from '@/components/navbar';
 import { AppTheme } from '@/constants/app-theme';
-import { getDeviceClass } from '@/constants/responsive';
+import { getDeviceClass, getTabDockMetrics } from '@/constants/responsive';
 
 export function PageShell({ children }: PropsWithChildren) {
   const { width, height } = useWindowDimensions();
@@ -16,11 +16,11 @@ export function PageShell({ children }: PropsWithChildren) {
   const insets = useSafeAreaInsets();
   const { isTablet, isLargePhone, isIPhone14Pro, isLandscape } = getDeviceClass(width, height);
   const inTabs = segments[0] === '(tabs)';
+  const { contentBottomPadding } = getTabDockMetrics(width, height, insets.bottom);
 
   const horizontalPadding = isTablet ? (isLandscape ? 32 : 24) : isIPhone14Pro ? 20 : isLargePhone ? 18 : 14;
   const contentMaxWidth = width >= 1280 ? 1080 : isTablet ? (isLandscape ? 980 : 760) : isLandscape ? 760 : 560;
-  const tabOverlayPadding = isTablet ? 102 : isIPhone14Pro ? 112 : isLargePhone ? 102 : 94;
-  const bottomPadding = (inTabs ? tabOverlayPadding : 24) + insets.bottom;
+  const bottomPadding = inTabs ? contentBottomPadding : 24 + insets.bottom;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
