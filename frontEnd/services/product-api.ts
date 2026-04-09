@@ -6,55 +6,26 @@ type ProductListParams = {
   subCategory?: ProductSubCategory;
   minPrice?: number;
   maxPrice?: number;
+  search?: string;
   q?: string;
   page?: number;
   limit?: number;
-  sort?: 'latest' | 'price_asc' | 'price_desc';
+  sort?: 'latest' | 'price_asc' | 'price_desc' | 'rating';
 };
 
-export async function fetchProducts(params: ProductListParams = {}) {
-  const { q, category, subCategory, minPrice, maxPrice, page = 1, limit = 100, sort = 'latest' } = params;
+type ProductListResponse = {
+  products: ProductItem[];
+  pagination: { page: number; limit: number; total: number; pages: number };
+};
 
-  if (q && q.trim()) {
-    const data = await apiRequest<{
-      products: ProductItem[];
-      pagination: { page: number; limit: number; total: number; totalPages: number };
-    }>('/products/search', {
-      query: { q: q.trim(), page, limit, sort },
-    });
+export async function fetchProducts(params: ProductListParams = {}): Promise<ProductItem[]> {
+  const { q, search, category, subCategory, minPrice, maxPrice, page = 1, limit = 100, sort = 'latest' } = params;
 
-    return data.products;
-  }
-
-  if (category && !subCategory && minPrice === undefined && maxPrice === undefined) {
-    const data = await apiRequest<{
-      products: ProductItem[];
-      pagination: { page: number; limit: number; total: number; totalPages: number };
-    }>(`/products/category/${category}`, {
-      query: { page, limit, sort },
-    });
-
-    return data.products;
-  }
-
-  if (subCategory && !category && minPrice === undefined && maxPrice === undefined) {
-    const data = await apiRequest<{
-      products: ProductItem[];
-      pagination: { page: number; limit: number; total: number; totalPages: number };
-    }>(`/products/subcategory/${subCategory}`, {
-      query: { page, limit, sort },
-    });
-
-    return data.products;
-  }
-
-  const data = await apiRequest<{
-    products: ProductItem[];
-    pagination: { page: number; limit: number; total: number; totalPages: number };
-  }>('/products/filter', {
+  const data = await apiRequest<ProductListResponse>('/products', {
     query: {
-      category,
-      subCategory,
+      search: q?.trim() || search?.trim() || undefined,
+      category: category || undefined,
+      subCategory: subCategory || undefined,
       minPrice,
       maxPrice,
       page,
@@ -66,7 +37,14 @@ export async function fetchProducts(params: ProductListParams = {}) {
   return data.products;
 }
 
-export async function fetchProductById(id: string) {
+export async function fetchFeaturedProducts(limit = 8): Promise<ProductItem[]> {
+  const data = await apiRequest<{ products: ProductItem[] }>('/products/featured', {
+    query: { limit },
+  });
+  return data.products;
+}
+
+export async function fetchProductById(id: string): Promise<ProductItem> {
   const data = await apiRequest<{ product: ProductItem }>(`/products/${id}`);
   return data.product;
 }

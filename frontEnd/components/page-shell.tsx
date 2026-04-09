@@ -77,7 +77,8 @@ const styles = StyleSheet.create({
   blob: {
     position: 'absolute',
     borderRadius: 999,
-    backgroundColor: '#FFFFFF9A',
+    backgroundColor: AppTheme.colors.peachSoft,
+    opacity: 0.6,
   },
   blobTop: {
     width: 220,
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: '#FFFFFF66',
+    borderColor: AppTheme.colors.primaryLight + '66',
   },
   ringTop: {
     width: 120,
