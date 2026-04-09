@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   row: {
     height: 96,
     borderRadius: AppTheme.radius.lg,
-    backgroundColor: '#E8F2EF',
+    backgroundColor: AppTheme.colors.peachSoft,
     borderWidth: 1,
     borderColor: AppTheme.colors.border,
   },

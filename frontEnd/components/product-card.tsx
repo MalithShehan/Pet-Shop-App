@@ -7,18 +7,23 @@ import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withTiming } fr
 
 import { AppTheme } from '@/constants/app-theme';
 import { getDeviceClass } from '@/constants/responsive';
-import { ProductItem, categoryLabelMap, subCategoryLabelMap } from '@/data/pets';
+import { ProductItem, getCategoryLabel, getSubCategoryLabel } from '@/data/pets';
 
 type Props = {
   item: ProductItem;
   index?: number;
 };
 
-const categoryIconMap = {
+const categoryIconMap: Record<string, string> = {
   pet: 'paw',
   food: 'restaurant',
   accessory: 'gift',
-} as const;
+  FOOD: 'restaurant',
+  TOYS: 'game-controller',
+  ACCESSORIES: 'gift',
+  HEALTH: 'medkit',
+  GROOMING: 'cut',
+};
 
 export function ProductCard({ item, index = 0 }: Props) {
   const { width, height } = useWindowDimensions();
@@ -45,11 +50,11 @@ export function ProductCard({ item, index = 0 }: Props) {
           <Image source={{ uri: item.image }} style={[styles.image, { height: imageHeight }]} contentFit="cover" />
           <LinearGradient colors={['transparent', AppTheme.colors.imageOverlayStrong]} style={styles.imageShade} />
           <View style={styles.categoryPill}>
-            <Ionicons name={categoryIconMap[item.category]} size={11} color={AppTheme.colors.primaryDark} />
-            <Text style={styles.categoryPillText}>{categoryLabelMap[item.category]}</Text>
+            <Ionicons name={(categoryIconMap[item.category] || 'pricetag') as any} size={11} color={AppTheme.colors.primaryDark} />
+            <Text style={styles.categoryPillText}>{getCategoryLabel(item.category)}</Text>
           </View>
           <View style={styles.favoriteIconWrap}>
-            <Ionicons name="heart-outline" size={15} color={AppTheme.colors.text} />
+            <Ionicons name="heart-outline" size={16} color={AppTheme.colors.coral} />
           </View>
         </View>
         <View style={[styles.body, isLandscape && !isTablet && styles.bodyLandscape]}>
@@ -58,14 +63,14 @@ export function ProductCard({ item, index = 0 }: Props) {
               {item.name}
             </Text>
             <Text style={[styles.price, isTablet && styles.priceTablet, isLandscape && !isTablet && styles.priceLandscape]}>
-              ${item.price.toFixed(2)}
+              Rs. {item.price.toFixed(2)}
             </Text>
           </View>
           <Text numberOfLines={2} style={[styles.description, isLandscape && !isTablet && styles.descriptionLandscape]}>
             {item.description}
           </Text>
           <View style={styles.cardFooter}>
-            <Text style={styles.metaText}>{subCategoryLabelMap[item.subCategory]}</Text>
+            <Text style={styles.metaText}>{getSubCategoryLabel(item.subCategory)}</Text>
             <View style={styles.viewTag}>
               <Text style={styles.viewTagText}>View Details</Text>
             </View>
@@ -80,7 +85,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: AppTheme.radius.lg,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFFF3',
+    backgroundColor: AppTheme.colors.surface,
     borderWidth: 0,
     marginBottom: 14,
     ...AppTheme.shadow.card,
@@ -111,8 +116,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     left: 10,
-    backgroundColor: '#FCE8CA',
-    borderRadius: 999,
+    backgroundColor: AppTheme.colors.primaryLight,
+    borderRadius: AppTheme.radius.full,
     paddingHorizontal: 11,
     paddingVertical: 5,
     flexDirection: 'row',
@@ -128,12 +133,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     top: 10,
-    width: 30,
-    height: 30,
-    borderRadius: 999,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFFF1',
+    backgroundColor: '#FFFFFFEE',
+    ...AppTheme.shadow.soft,
   },
   body: {
     padding: 14,
@@ -194,14 +200,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   viewTag: {
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    borderRadius: AppTheme.radius.full,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderWidth: 0,
-    backgroundColor: '#F9E7CC',
+    backgroundColor: AppTheme.colors.primaryLight,
   },
   viewTagText: {
-    color: AppTheme.colors.text,
+    color: AppTheme.colors.primaryDark,
     fontWeight: '800',
     fontSize: 11,
   },
