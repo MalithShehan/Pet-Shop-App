@@ -19,7 +19,7 @@ import {
 } from '@/data/pets';
 import { fetchProducts } from '@/services/product-api';
 
-const priceRangeOptions = ['All Prices', 'Under $20', '$20 - $100', 'Over $100'] as const;
+const priceRangeOptions = ['All Prices', 'Under Rs.1000', 'Rs.1000 - Rs.5000', 'Over Rs.5000'] as const;
 type PriceRangeOption = (typeof priceRangeOptions)[number];
 
 export default function ShopScreen() {
@@ -46,18 +46,8 @@ export default function ShopScreen() {
     const categoryValue = categoryOptionToValue[selectedCategory];
     const subCategoryValue = subCategoryLabelToValue[selectedSubCategory];
     const params: {
-      category?: 'pet' | 'food' | 'accessory';
-      subCategory?:
-        | 'dog'
-        | 'cat'
-        | 'bird'
-        | 'dog-food'
-        | 'cat-food'
-        | 'bird-food'
-        | 'toys'
-        | 'cages'
-        | 'leashes'
-        | 'bowls';
+      category?: string;
+      subCategory?: string;
       minPrice?: number;
       maxPrice?: number;
       q?: string;
@@ -80,13 +70,13 @@ export default function ShopScreen() {
       params.q = query.trim();
     }
 
-    if (selectedPriceRange === 'Under $20') {
-      params.maxPrice = 20;
-    } else if (selectedPriceRange === '$20 - $100') {
-      params.minPrice = 20;
-      params.maxPrice = 100;
-    } else if (selectedPriceRange === 'Over $100') {
-      params.minPrice = 100;
+    if (selectedPriceRange === 'Under Rs.1000') {
+      params.maxPrice = 1000;
+    } else if (selectedPriceRange === 'Rs.1000 - Rs.5000') {
+      params.minPrice = 1000;
+      params.maxPrice = 5000;
+    } else if (selectedPriceRange === 'Over Rs.5000') {
+      params.minPrice = 5000;
     }
 
     return params;
@@ -114,20 +104,26 @@ export default function ShopScreen() {
   return (
     <PageShell>
       <Animated.View entering={FadeIn.duration(350)} style={styles.headerWrap}>
-        <LinearGradient colors={['#FFFFFFED', '#FFFFFFCD']} style={styles.header}>
+        <LinearGradient colors={[AppTheme.colors.peachSoft, AppTheme.colors.peachLight + 'CD']} style={styles.header}>
           <Text style={[styles.title, isTablet && styles.titleTablet, (isCompact || isLandscape) && styles.titleCompact]}>
             Shop Pet Essentials
           </Text>
           <Text style={styles.subTitle}>Browse pets, foods, and accessories in one place.</Text>
           <View style={[styles.pillRow, (isCompact || isLandscape) && styles.pillRowCompact]}>
             <View style={styles.pill}>
-              <Text style={styles.pillText}>Pets</Text>
+              <Text style={styles.pillText}>Food</Text>
             </View>
             <View style={styles.pill}>
-              <Text style={styles.pillText}>Foods</Text>
+              <Text style={styles.pillText}>Toys</Text>
             </View>
             <View style={styles.pill}>
               <Text style={styles.pillText}>Accessories</Text>
+            </View>
+            <View style={styles.pill}>
+              <Text style={styles.pillText}>Health</Text>
+            </View>
+            <View style={styles.pill}>
+              <Text style={styles.pillText}>Grooming</Text>
             </View>
           </View>
         </LinearGradient>
@@ -143,9 +139,11 @@ export default function ShopScreen() {
           onSelect={setSelectedCategory}
           icons={{
             All: 'grid-outline',
-            Pets: 'paw-outline',
-            Foods: 'restaurant-outline',
+            Food: 'restaurant-outline',
+            Toys: 'game-controller-outline',
             Accessories: 'gift-outline',
+            Health: 'medkit-outline',
+            Grooming: 'cut-outline',
           }}
         />
       </View>
@@ -167,9 +165,9 @@ export default function ShopScreen() {
           onSelect={setSelectedPriceRange}
           icons={{
             'All Prices': 'pricetags-outline',
-            'Under $20': 'cash-outline',
-            '$20 - $100': 'wallet-outline',
-            'Over $100': 'diamond-outline',
+            'Under Rs.1000': 'cash-outline',
+            'Rs.1000 - Rs.5000': 'wallet-outline',
+            'Over Rs.5000': 'diamond-outline',
           }}
         />
       </View>
@@ -202,7 +200,7 @@ const styles = StyleSheet.create({
     gap: 7,
     borderRadius: AppTheme.radius.lg,
     borderWidth: 1,
-    borderColor: AppTheme.colors.borderStrong,
+    borderColor: AppTheme.colors.peach,
     padding: 16,
   },
   title: {
@@ -229,10 +227,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   pill: {
-    borderRadius: 999,
+    borderRadius: AppTheme.radius.full,
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
-    backgroundColor: AppTheme.colors.surfaceSoft,
+    borderColor: AppTheme.colors.primaryLight,
+    backgroundColor: AppTheme.colors.primarySoft,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },

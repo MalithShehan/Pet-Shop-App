@@ -19,13 +19,11 @@ const cartItemSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ['pet', 'food', 'accessory'],
-      lowercase: true,
       trim: true,
     },
     subCategory: {
       type: String,
-      required: true,
+      default: '',
       trim: true,
     },
     quantity: {
@@ -53,6 +51,22 @@ const cartSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: {
+      virtuals: true,
+      versionKey: false,
+      transform: (_, ret) => {
+        ret.id = ret._id.toString();
+        delete ret._id;
+      },
+    },
+    toObject: {
+      virtuals: true,
+      versionKey: false,
+      transform: (_, ret) => {
+        ret.id = ret._id.toString();
+        delete ret._id;
+      },
+    },
   }
 );
 

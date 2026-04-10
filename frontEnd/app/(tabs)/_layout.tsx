@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { AppTheme } from '@/constants/app-theme';
 import { getTabDockMetrics } from '@/constants/responsive';
 
 function TabIcon({
@@ -21,9 +22,8 @@ function TabIcon({
   iconSize: number;
   showLabel: boolean;
 }) {
-  const baseSlotSize = showLabel ? 36 : 38;
-  const slotSize = focused ? baseSlotSize + 2 : baseSlotSize;
-  const resolvedIconSize = showLabel ? Math.max(iconSize - 1, 18) : Math.max(iconSize, 20);
+  const slotSize = 44;
+  const resolvedIconSize = Math.max(iconSize, 20);
 
   return (
     <View style={styles.tabItemContent}>
@@ -34,18 +34,18 @@ function TabIcon({
           {
             width: slotSize,
             height: slotSize,
-            borderRadius: Math.round(slotSize / 2),
+            borderRadius: slotSize / 2,
           },
         ]}>
         {focused ? (
           <LinearGradient
-            colors={['#FAE3B8', '#F2B452']}
+            colors={[AppTheme.colors.primary, AppTheme.colors.primaryDark]}
             start={{ x: 0.1, y: 0.1 }}
             end={{ x: 0.9, y: 0.95 }}
             style={StyleSheet.absoluteFillObject}
           />
         ) : null}
-        <IconSymbol size={resolvedIconSize} name={name} color={focused ? '#201A13' : '#72695D'} />
+        <IconSymbol size={resolvedIconSize} name={name} color={focused ? '#FFFFFF' : AppTheme.colors.textMuted} />
       </View>
       {showLabel && (
         <Text
@@ -80,8 +80,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#221A11',
-        tabBarInactiveTintColor: '#4A443D',
+        tabBarActiveTintColor: AppTheme.colors.primary,
+        tabBarInactiveTintColor: AppTheme.colors.textMuted,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarHideOnKeyboard: true,
@@ -93,18 +93,18 @@ export default function TabLayout() {
           right: dockHorizontalInset,
           bottom: 0,
           height: dockHeight,
-          backgroundColor: 'transparent',
-          borderTopWidth: 0,
-          borderTopColor: 'transparent',
-          borderRadius: 32,
+          backgroundColor: AppTheme.colors.surface,
+          borderTopWidth: 1,
+          borderTopColor: AppTheme.colors.border,
+          borderRadius: 0,
           paddingTop: dockPaddingTop,
           paddingBottom: bottomSafePadding,
           paddingHorizontal: dockPaddingHorizontal,
-          elevation: 6,
-          shadowColor: '#21170B',
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.12,
-          shadowRadius: 16,
+          elevation: 8,
+          shadowColor: '#2B2014',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
         },
         tabBarItemStyle: {
           borderRadius: 14,
@@ -196,36 +196,30 @@ const styles = StyleSheet.create({
   tabItemContent: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
+    gap: 4,
   },
   iconShell: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
     overflow: 'hidden',
+    borderWidth: 0,
   },
   iconShellActive: {
-    borderColor: '#E4BC79',
-    shadowColor: '#B0761F',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.16,
-    shadowRadius: 7,
-    elevation: 3,
+    ...AppTheme.shadow.glow,
   },
   iconShellInactive: {
-    backgroundColor: '#FFFFFF88',
-    borderColor: '#EEE2D3DE',
+    backgroundColor: AppTheme.colors.surfaceSoft,
   },
   tabLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#6D655A',
+    color: AppTheme.colors.textMuted,
     letterSpacing: 0.12,
   },
   tabLabelActive: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#2A231B',
+    color: AppTheme.colors.primaryDark,
     letterSpacing: 0.16,
   },
   tabLabelBase: {
@@ -233,17 +227,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   activePill: {
-    width: 16,
+    width: 18,
     height: 3,
     borderRadius: 99,
-    marginTop: 1,
-    backgroundColor: '#D59329',
+    marginTop: 2,
+    backgroundColor: AppTheme.colors.primary,
   },
   idlePill: {
     width: 14,
     height: 3,
     borderRadius: 99,
-    marginTop: 1,
+    marginTop: 2,
     backgroundColor: 'transparent',
   },
 });

@@ -1,84 +1,63 @@
-const bcrypt = require('bcryptjs');
-
-const User = require('../models/User');
+const authService = require('../services/authService');
 const asyncHandler = require('../middleware/asyncHandler');
-const generateToken = require('../utils/generateToken');
 
 const register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
-
-  const existingUser = await User.findOne({ email: email.toLowerCase() });
-  if (existingUser) {
-    return res.status(409).json({
-      success: false,
-      message: 'Email is already registered',
-    });
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const user = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-  });
+  const result = await authService.register({ name, email, password });
 
   return res.status(201).json({
     success: true,
     message: 'User registered successfully',
-    data: {
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        createdAt: user.createdAt,
-      },
-    },
+    data: result,
   });
 });
 
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-
-  const user = await User.findOne({ email: email.toLowerCase() });
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid email or password',
-    });
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid email or password',
-    });
-  }
-
-  const token = generateToken(user._id.toString());
+  const result = await authService.login({ email, password });
 
   return res.json({
     success: true,
     message: 'Login successful',
-    data: {
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        createdAt: user.createdAt,
-      },
-    },
+    data: result,
   });
 });
 
 const getMe = asyncHandler(async (req, res) => {
+  const user = await authService.getProfile(req.user.id);
+
   return res.json({
     success: true,
-    data: {
-      user: req.user,
-    },
+    data: { user },
+  });
+});
+
+const updateProfile = asyncHandler(async (req, res) => {
+  const user = await authService.updateProfile(req.user.id, req.body);
+
+  return res.json({
+    success: true,
+    message: 'Profile updated',
+    data: { user },
+  });
+});
+
+const updateAddress = asyncHandler(async (req, res) => {
+  const address = await authService.updateAddress(req.user.id, req.body);
+
+  return res.json({
+    success: true,
+    message: 'Address updated',
+    data: { address },
+  });
+});
+
+const changePassword = asyncHandler(async (req, res) => {
+  await authService.changePassword(req.user.id, req.body);
+
+  return res.json({
+    success: true,
+    message: 'Password changed successfully',
   });
 });
 
@@ -86,4 +65,7 @@ module.exports = {
   register,
   login,
   getMe,
+  updateProfile,
+  updateAddress,
+  changePassword,
 };

@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    backgroundColor: '#FAF7F2',
+    backgroundColor: AppTheme.colors.surfaceSoft,
   },
   inputTablet: {
     paddingVertical: 13,

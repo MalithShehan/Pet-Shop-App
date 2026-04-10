@@ -1,4 +1,6 @@
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -65,8 +67,15 @@ export default function CartScreen() {
 
           <View style={styles.summary}>
             <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>${subtotal.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>Rs. {subtotal.toFixed(2)}</Text>
           </View>
+
+          <Pressable style={styles.checkoutWrap} onPress={() => router.push('/checkout')}>
+            <LinearGradient colors={[AppTheme.colors.primaryDark, AppTheme.colors.primary]} style={styles.checkoutBtn}>
+              <Ionicons name="card-outline" size={18} color="white" />
+              <Text style={styles.checkoutText}>Proceed to Checkout</Text>
+            </LinearGradient>
+          </Pressable>
         </>
       )}
     </PageShell>
@@ -139,5 +148,23 @@ const styles = StyleSheet.create({
     color: AppTheme.colors.text,
     fontWeight: '900',
     fontSize: 20,
+  },
+  checkoutWrap: {
+    borderRadius: AppTheme.radius.lg,
+    overflow: 'hidden',
+    ...AppTheme.shadow.glow,
+  },
+  checkoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 16,
+    borderRadius: AppTheme.radius.lg,
+  },
+  checkoutText: {
+    color: 'white',
+    fontWeight: '800',
+    fontSize: 16,
   },
 });

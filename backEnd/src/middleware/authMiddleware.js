@@ -26,12 +26,25 @@ const protect = asyncHandler(async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    err.statusCode = 401;
-    err.message = 'Not authorized, invalid token';
+    if (err.statusCode !== 401) {
+      err.statusCode = 401;
+      err.message = 'Not authorized, invalid token';
+    }
     throw err;
   }
 });
 
+const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'ADMIN') {
+    next();
+  } else {
+    const error = new Error('Not authorized as admin');
+    error.statusCode = 403;
+    throw error;
+  }
+};
+
 module.exports = {
   protect,
+  adminOnly,
 };

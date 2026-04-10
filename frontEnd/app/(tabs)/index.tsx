@@ -10,13 +10,13 @@ import { PageShell } from '@/components/page-shell';
 import { ProductCard } from '@/components/product-card';
 import { AppTheme } from '@/constants/app-theme';
 import { getDeviceClass } from '@/constants/responsive';
-import { ProductItem, products } from '@/data/pets';
+import { ProductItem } from '@/data/pets';
 import { AppRoutes } from '@/routes/app-routes';
-import { fetchProducts } from '@/services/product-api';
+import { fetchFeaturedProducts } from '@/services/product-api';
 
 export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
-  const [featured, setFeatured] = useState<ProductItem[]>(products.slice(0, 4));
+  const [featured, setFeatured] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
   const heroPreview = featured.slice(0, 2);
   const { isCompact, isTablet, isLandscape } = getDeviceClass(width, height);
@@ -33,12 +33,12 @@ export default function HomeScreen() {
   useEffect(() => {
     const loadFeatured = async () => {
       try {
-        const result = await fetchProducts({ limit: 4, sort: 'latest' });
+        const result = await fetchFeaturedProducts(4);
         if (result.length > 0) {
-          setFeatured(result.slice(0, 4));
+          setFeatured(result);
         }
       } catch {
-        // Keep local fallback data.
+        // Keep empty state on error.
       } finally {
         setLoading(false);
       }
@@ -50,14 +50,18 @@ export default function HomeScreen() {
   return (
     <PageShell>
       <Animated.View entering={FadeInUp.duration(550)} style={styles.heroWrap}>
-        <LinearGradient colors={['#FFFFFFF2', '#FFFFFFD6']} style={styles.hero}>
+        <LinearGradient colors={[AppTheme.colors.peachSoft, AppTheme.colors.peachLight]} style={styles.hero}>
           <View style={[styles.mediaWrap, { height: heroMediaHeight }]}>
-            <Image source={{ uri: heroPreview[0].image }} style={styles.heroImageMain} contentFit="cover" />
-            <Image
-              source={{ uri: heroPreview[1].image }}
-              style={[styles.heroImageSecondary, secondaryImageSize]}
-              contentFit="cover"
-            />
+            {heroPreview[0] && (
+              <Image source={{ uri: heroPreview[0].image }} style={styles.heroImageMain} contentFit="cover" />
+            )}
+            {heroPreview[1] && (
+              <Image
+                source={{ uri: heroPreview[1].image }}
+                style={[styles.heroImageSecondary, secondaryImageSize]}
+                contentFit="cover"
+              />
+            )}
             <LinearGradient colors={[AppTheme.colors.imageOverlay, 'transparent']} style={styles.mediaShade} />
           </View>
 
@@ -70,11 +74,11 @@ export default function HomeScreen() {
           </Text>
 
           <View style={[styles.metricsRow, compactActionLayout && styles.metricsRowCompact]}>
-            <View style={styles.metricChip}>
+            <View style={[styles.metricChip, { backgroundColor: AppTheme.colors.sageSoft }]}>
               <Text style={styles.metricValue}>250+</Text>
               <Text style={styles.metricLabel}>Pet essentials</Text>
             </View>
-            <View style={styles.metricChip}>
+            <View style={[styles.metricChip, { backgroundColor: AppTheme.colors.primarySoft }]}>
               <Text style={styles.metricValue}>48h</Text>
               <Text style={styles.metricLabel}>Fast delivery</Text>
             </View>
@@ -115,7 +119,7 @@ const styles = StyleSheet.create({
   hero: {
     borderRadius: AppTheme.radius.xl,
     borderWidth: 1,
-    borderColor: AppTheme.colors.borderStrong,
+    borderColor: AppTheme.colors.peach,
     padding: 16,
     gap: 11,
   },
@@ -179,10 +183,9 @@ const styles = StyleSheet.create({
   },
   metricChip: {
     flex: 1,
-    backgroundColor: AppTheme.colors.surfaceElevated,
     borderWidth: 1,
-    borderColor: AppTheme.colors.borderStrong,
-    borderRadius: 14,
+    borderColor: AppTheme.colors.border,
+    borderRadius: AppTheme.radius.md,
     paddingHorizontal: 12,
     paddingVertical: 10,
   },

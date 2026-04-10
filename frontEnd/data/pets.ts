@@ -19,32 +19,38 @@ export type ProductItem = {
 /** @deprecated Use fetchProducts() from product-api instead */
 export const products: ProductItem[] = [];
 
-export const categoryOptions = ['All', 'Pets', 'Foods', 'Accessories'] as const;
+export const categoryOptions = ['All', 'Food', 'Toys', 'Accessories', 'Health', 'Grooming'] as const;
 export type CategoryOption = (typeof categoryOptions)[number];
 
 export const subCategoryByCategory: Record<CategoryOption, readonly string[]> = {
   All: [
     'All Types',
-    'Dog', 'Cat', 'Bird',
     'Dog Food', 'Cat Food', 'Bird Food', 'Fish Food',
-    'Toys', 'Cages', 'Leashes', 'Bowls', 'Beds', 'Carriers',
-    'Health', 'Grooming',
+    'Interactive Toys', 'Plush Toys', 'Chew Toys',
+    'Leashes', 'Bowls', 'Beds', 'Cages', 'Carriers', 'Collars',
+    'Vitamins',
+    'Shampoo', 'Brushes',
   ],
-  Pets: ['All Types', 'Dog', 'Cat', 'Bird'],
-  Foods: ['All Types', 'Dog Food', 'Cat Food', 'Bird Food', 'Fish Food'],
-  Accessories: ['All Types', 'Toys', 'Cages', 'Leashes', 'Bowls', 'Beds', 'Carriers', 'Health', 'Grooming'],
+  Food: ['All Types', 'Dog Food', 'Cat Food', 'Bird Food', 'Fish Food'],
+  Toys: ['All Types', 'Interactive Toys', 'Plush Toys', 'Chew Toys'],
+  Accessories: ['All Types', 'Leashes', 'Bowls', 'Beds', 'Cages', 'Carriers', 'Collars'],
+  Health: ['All Types', 'Vitamins'],
+  Grooming: ['All Types', 'Shampoo', 'Brushes'],
 };
 
-// Lookup label from any category value (lowercase or UPPERCASE)
+// Lookup label from any category value
 const _categoryLabels: Record<string, string> = {
-  pet: 'Pet',
-  food: 'Food',
-  accessory: 'Accessory',
   FOOD: 'Food',
   TOYS: 'Toys',
   ACCESSORIES: 'Accessories',
   HEALTH: 'Health',
   GROOMING: 'Grooming',
+  // Keep lowercase fallbacks for safety
+  food: 'Food',
+  toys: 'Toys',
+  accessories: 'Accessories',
+  health: 'Health',
+  grooming: 'Grooming',
 };
 
 export function getCategoryLabel(cat: string): string {
@@ -56,16 +62,6 @@ export const categoryLabelMap = _categoryLabels as Record<ProductCategory, strin
 
 // Lookup label from any subCategory value
 const _subCategoryLabels: Record<string, string> = {
-  dog: 'Dog',
-  cat: 'Cat',
-  bird: 'Bird',
-  'dog-food': 'Dog Food',
-  'cat-food': 'Cat Food',
-  'bird-food': 'Bird Food',
-  toys: 'Toys',
-  cages: 'Cages',
-  leashes: 'Leashes',
-  bowls: 'Bowls',
   DOG_FOOD: 'Dog Food',
   CAT_FOOD: 'Cat Food',
   BIRD_FOOD: 'Bird Food',
@@ -92,28 +88,31 @@ export const subCategoryLabelMap = _subCategoryLabels as Record<ProductSubCatego
 
 export const categoryOptionToValue: Record<CategoryOption, ProductCategory | 'all'> = {
   All: 'all',
-  Pets: 'pet',
-  Foods: 'food',
-  Accessories: 'accessory',
+  Food: 'FOOD',
+  Toys: 'TOYS',
+  Accessories: 'ACCESSORIES',
+  Health: 'HEALTH',
+  Grooming: 'GROOMING',
 };
 
 export const subCategoryLabelToValue: Record<string, ProductSubCategory | 'all'> = {
   'All Types': 'all',
-  Dog: 'dog',
-  Cat: 'cat',
-  Bird: 'bird',
-  'Dog Food': 'dog-food',
-  'Cat Food': 'cat-food',
-  'Bird Food': 'bird-food',
+  'Dog Food': 'DOG_FOOD',
+  'Cat Food': 'CAT_FOOD',
+  'Bird Food': 'BIRD_FOOD',
   'Fish Food': 'FISH_FOOD',
-  Toys: 'toys',
-  Cages: 'cages',
-  Leashes: 'leashes',
-  Bowls: 'bowls',
+  'Interactive Toys': 'INTERACTIVE_TOYS',
+  'Plush Toys': 'PLUSH_TOYS',
+  'Chew Toys': 'CHEW_TOYS',
+  Leashes: 'LEASHES',
+  Bowls: 'BOWLS',
   Beds: 'BEDS',
+  Cages: 'CAGES',
   Carriers: 'CARRIERS',
-  Health: 'HEALTH',
-  Grooming: 'GROOMING',
+  Collars: 'COLLARS',
+  Vitamins: 'VITAMINS',
+  Shampoo: 'SHAMPOO',
+  Brushes: 'BRUSHES',
 };
 
 // Backward-compatible exports used by existing screens.

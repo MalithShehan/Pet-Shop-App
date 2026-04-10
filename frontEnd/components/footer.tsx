@@ -11,7 +11,7 @@ export function Footer() {
   return (
     <View style={styles.wrap}>
       <LinearGradient
-        colors={['#FFFFFFF0', '#FFFFFFE9']}
+        colors={[AppTheme.colors.surface + 'F0', AppTheme.colors.surfaceSoft + 'E9']}
         style={[styles.panel, isTablet && styles.panelTablet, isLandscape && !isTablet && styles.panelLandscape]}>
         <Text style={styles.title}>Pet Shop Mobile</Text>
         <Text style={styles.caption}>Adopt responsibly. Love endlessly.</Text>
@@ -73,10 +73,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   tag: {
-    borderRadius: 999,
+    borderRadius: AppTheme.radius.full,
     borderWidth: 1,
-    borderColor: '#EEE3D6',
-    backgroundColor: '#F9F4ED',
+    borderColor: AppTheme.colors.border,
+    backgroundColor: AppTheme.colors.primarySoft,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },

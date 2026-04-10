@@ -11,7 +11,7 @@ import { PageShell } from '@/components/page-shell';
 import { AppTheme } from '@/constants/app-theme';
 import { getDeviceClass } from '@/constants/responsive';
 import { useCart } from '@/context/cart-context';
-import { ProductItem, categoryLabelMap, subCategoryLabelMap } from '@/data/pets';
+import { ProductItem, getCategoryLabel, getSubCategoryLabel } from '@/data/pets';
 import { fetchProductById } from '@/services/product-api';
 
 export default function ProductDetailsScreen() {
@@ -83,12 +83,12 @@ export default function ProductDetailsScreen() {
           <LinearGradient colors={['transparent', AppTheme.colors.imageOverlayStrong]} style={styles.imageShade} />
           <View style={styles.imagePill}>
             <Ionicons name="pricetag" size={13} color={AppTheme.colors.primaryDark} />
-            <Text style={styles.imagePillText}>{categoryLabelMap[product.category]}</Text>
+            <Text style={styles.imagePillText}>{getCategoryLabel(product.category)}</Text>
           </View>
         </View>
         <View style={[styles.body, isLandscape && !isTablet && styles.bodyLandscape]}>
           <Text style={styles.category}>
-            {categoryLabelMap[product.category]} • {subCategoryLabelMap[product.subCategory]}
+            {getCategoryLabel(product.category)} • {getSubCategoryLabel(product.subCategory)}
           </Text>
           <Text style={[styles.name, isTablet && styles.nameTablet, isLandscape && !isTablet && styles.nameLandscape]}>
             {product.name}
@@ -96,7 +96,7 @@ export default function ProductDetailsScreen() {
           <Text style={styles.description}>{product.description}</Text>
           <View style={styles.priceRow}>
             <Text style={[styles.price, isTablet && styles.priceTablet, isLandscape && !isTablet && styles.priceLandscape]}>
-              ${product.price.toFixed(2)}
+              Rs. {product.price.toFixed(2)}
             </Text>
             <Text style={styles.priceCaption}>Available stock: {product.stock ?? 'N/A'}</Text>
           </View>
@@ -214,11 +214,11 @@ const styles = StyleSheet.create({
   },
   buttonWrap: {
     marginTop: 8,
-    borderRadius: 12,
+    borderRadius: AppTheme.radius.md,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#E6B56266',
-    ...AppTheme.shadow.soft,
+    borderColor: AppTheme.colors.primaryDark + '66',
+    ...AppTheme.shadow.glow,
   },
   button: {
     alignItems: 'center',

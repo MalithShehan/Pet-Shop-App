@@ -15,9 +15,6 @@ type Props = {
 };
 
 const categoryIconMap: Record<string, string> = {
-  pet: 'paw',
-  food: 'restaurant',
-  accessory: 'gift',
   FOOD: 'restaurant',
   TOYS: 'game-controller',
   ACCESSORIES: 'gift',

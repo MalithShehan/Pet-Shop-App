@@ -1,7 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
 
-const { register, login, getMe } = require('../controllers/authController');
+const { register, login, getMe, updateProfile, updateAddress, changePassword } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const validateRequest = require('../middleware/validateRequest');
 
@@ -31,5 +31,37 @@ router.post(
 );
 
 router.get('/me', protect, getMe);
+
+router.put(
+  '/profile',
+  protect,
+  [body('name').optional().trim().notEmpty().withMessage('Name cannot be empty')],
+  validateRequest,
+  updateProfile
+);
+
+router.put(
+  '/address',
+  protect,
+  [
+    body('street').trim().notEmpty().withMessage('Street is required'),
+    body('city').trim().notEmpty().withMessage('City is required'),
+    body('state').trim().notEmpty().withMessage('State is required'),
+    body('postalCode').trim().notEmpty().withMessage('Postal code is required'),
+  ],
+  validateRequest,
+  updateAddress
+);
+
+router.put(
+  '/change-password',
+  protect,
+  [
+    body('currentPassword').notEmpty().withMessage('Current password is required'),
+    body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters'),
+  ],
+  validateRequest,
+  changePassword
+);
 
 module.exports = router;
