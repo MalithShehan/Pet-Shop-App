@@ -6,7 +6,9 @@ const petRoutes = require('./petRoutes');
 const cartRoutes = require('./cartRoutes');
 const orderRoutes = require('./orderRoutes');
 const wishlistRoutes = require('./wishlistRoutes');
+
 const reviewRoutes = require('./reviewRoutes');
+const notificationRoutes = require('./notificationRoutes');
 
 const router = express.Router();
 
@@ -17,5 +19,7 @@ router.use('/cart', cartRoutes);
 router.use('/orders', orderRoutes);
 router.use('/wishlist', wishlistRoutes);
 router.use('/reviews', reviewRoutes);
+
+router.use('/notifications', notificationRoutes);
 
 module.exports = router;

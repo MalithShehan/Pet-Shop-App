@@ -9,9 +9,13 @@ async function startServer() {
   try {
     await connectDB();
 
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
+
+    // Initialize Socket.IO
+    const { initSocket } = require('./utils/socket');
+    initSocket(server);
   } catch (error) {
     console.error('Failed to start server:', error.message);
     process.exit(1);

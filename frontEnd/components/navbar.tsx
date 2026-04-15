@@ -1,4 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
+import { NotificationBadge } from './notification-badge';
+import { NotificationPanel } from './notification-panel';
 import { router, usePathname } from 'expo-router';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -10,6 +13,7 @@ import { useCart } from '@/context/cart-context';
 import { AppRoutes } from '@/routes/app-routes';
 
 export function Navbar() {
+  const [notifOpen, setNotifOpen] = useState(false);
   const { width, height } = useWindowDimensions();
   const pathname = usePathname();
   const { user, isAuthenticated, signOut } = useAuth();
@@ -34,31 +38,33 @@ export function Navbar() {
   };
 
   return (
-    <Animated.View
-      entering={FadeInDown.duration(320)}
-      style={[
-        styles.container,
-        isTablet && styles.containerTablet,
-        isIPhone14Pro && styles.containerIPhone14Pro,
-        isLandscape && !isTablet && styles.containerLandscape,
-      ]}>
-      <View style={[styles.headerRow, shouldStackHeader && styles.headerRowCompact]}>
-        <Pressable onPress={() => router.push(AppRoutes.home as never)} style={styles.brandRow}>
-          <View style={styles.brandIconWrap}>
-            <Ionicons name="paw" size={14} color="#FFFFFF" />
-          </View>
-          <View style={styles.brandTextBlock}>
-            <Text numberOfLines={1} style={[styles.brandTitle, isIPhone14Pro && styles.brandTitleIPhone14Pro]}>
-              PetNest
-            </Text>
-            <Text numberOfLines={1} style={styles.brandSub}>
-              {isAuthenticated ? `Welcome back, ${firstName}` : 'Welcome, find your next companion'}
-            </Text>
-          </View>
-        </Pressable>
+    <>
+      <Animated.View
+        entering={FadeInDown.duration(320)}
+        style={[
+          styles.container,
+          isTablet && styles.containerTablet,
+          isIPhone14Pro && styles.containerIPhone14Pro,
+          isLandscape && !isTablet && styles.containerLandscape,
+        ]}>
+        <View style={[styles.headerRow, shouldStackHeader && styles.headerRowCompact]}>
+          <Pressable onPress={() => router.push(AppRoutes.home as never)} style={styles.brandRow}>
+            <View style={styles.brandIconWrap}>
+              <Ionicons name="paw" size={14} color="#FFFFFF" />
+            </View>
+            <View style={styles.brandTextBlock}>
+              <Text numberOfLines={1} style={[styles.brandTitle, isIPhone14Pro && styles.brandTitleIPhone14Pro]}>
+                PetNest
+              </Text>
+              <Text numberOfLines={1} style={styles.brandSub}>
+                {isAuthenticated ? `Welcome back, ${firstName}` : 'Welcome, find your next companion'}
+              </Text>
+            </View>
+          </Pressable>
 
-        <View style={[styles.actionRow, shouldStackHeader && styles.actionRowCompact]}>
+          <View style={[styles.actionRow, shouldStackHeader && styles.actionRowCompact]}>
           <Pressable style={styles.cartBtn} onPress={goToCart}>
+
             <Ionicons name="bag-handle-outline" size={17} color={AppTheme.colors.text} />
             {cartCount > 0 && (
               <View style={styles.badge}>
@@ -66,6 +72,8 @@ export function Navbar() {
               </View>
             )}
           </Pressable>
+
+          <NotificationBadge onPress={() => setNotifOpen((v) => !v)} />
 
           <Pressable style={styles.authBtn} onPress={handleAuthAction}>
             <Ionicons name={isAuthenticated ? 'log-out-outline' : 'log-in-outline'} size={14} color={AppTheme.colors.text} />
@@ -102,7 +110,9 @@ export function Navbar() {
           </View>
         )}
       </View>
-    </Animated.View>
+      </Animated.View>
+      <NotificationPanel visible={notifOpen} onClose={() => setNotifOpen(false)} />
+    </>
   );
 }
 

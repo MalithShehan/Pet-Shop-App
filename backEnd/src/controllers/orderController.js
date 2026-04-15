@@ -1,8 +1,23 @@
 const orderService = require('../services/orderService');
 const asyncHandler = require('../middleware/asyncHandler');
 
+const { createNotification } = require('./notificationController');
+const { sendNotification } = require('../utils/socket');
+
 const createOrder = asyncHandler(async (req, res) => {
   const order = await orderService.create(req.user.id, req.body);
+
+  // Create notification for user
+  const notification = await createNotification(
+    req.user.id,
+    'order',
+    'Your order has been placed!',
+    `/orders/${order._id}`
+  );
+  // Emit real-time notification
+  if (notification) {
+    sendNotification(req.user.id.toString(), notification);
+  }
 
   return res.status(201).json({
     success: true,
