@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, useWindowDimensions, Animated, Easing } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HapticTab } from '@/components/haptic-tab';
@@ -24,10 +24,23 @@ function TabIcon({
 }) {
   const slotSize = 44;
   const resolvedIconSize = Math.max(iconSize, 20);
+  const anim = React.useRef(new Animated.Value(focused ? 1 : 0)).current;
+
+  React.useEffect(() => {
+    Animated.timing(anim, {
+      toValue: focused ? 1 : 0,
+      duration: 300,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [focused, anim]);
+
+  const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.12] });
+  const pillWidth = anim.interpolate({ inputRange: [0, 1], outputRange: [14, 18] });
 
   return (
     <View style={styles.tabItemContent}>
-      <View
+      <Animated.View
         style={[
           styles.iconShell,
           focused ? styles.iconShellActive : styles.iconShellInactive,
@@ -35,28 +48,33 @@ function TabIcon({
             width: slotSize,
             height: slotSize,
             borderRadius: slotSize / 2,
+            transform: [{ scale }],
           },
         ]}>
-        {focused ? (
+        <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: anim }]}>
           <LinearGradient
             colors={[AppTheme.colors.primary, AppTheme.colors.primaryDark]}
             start={{ x: 0.1, y: 0.1 }}
             end={{ x: 0.9, y: 0.95 }}
             style={StyleSheet.absoluteFillObject}
           />
-        ) : null}
+        </Animated.View>
         <IconSymbol size={resolvedIconSize} name={name} color={focused ? '#FFFFFF' : AppTheme.colors.textMuted} />
-      </View>
+      </Animated.View>
       {showLabel && (
-        <Text
+        <Animated.Text
           numberOfLines={1}
           adjustsFontSizeToFit
           minimumFontScale={0.85}
-          style={[styles.tabLabelBase, focused ? styles.tabLabelActive : styles.tabLabel]}>
+          style={[styles.tabLabelBase, focused ? styles.tabLabelActive : styles.tabLabel, { opacity: anim }]}> 
           {label}
-        </Text>
+        </Animated.Text>
       )}
-      {showLabel && <View style={focused ? styles.activePill : styles.idlePill} />}
+      {showLabel && (
+        <Animated.View
+          style={{ width: pillWidth, height: 3, borderRadius: 99, marginTop: 2, backgroundColor: AppTheme.colors.primary, opacity: anim }}
+        />
+      )}
     </View>
   );
 }
@@ -93,18 +111,18 @@ export default function TabLayout() {
           right: dockHorizontalInset,
           bottom: 0,
           height: dockHeight,
-          backgroundColor: AppTheme.colors.surface,
-          borderTopWidth: 1,
-          borderTopColor: AppTheme.colors.border,
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
+          borderTopColor: 'transparent',
           borderRadius: 0,
           paddingTop: dockPaddingTop,
           paddingBottom: bottomSafePadding,
           paddingHorizontal: dockPaddingHorizontal,
-          elevation: 8,
-          shadowColor: '#2B2014',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.08,
-          shadowRadius: 12,
+          elevation: 0,
+          shadowColor: 'transparent',
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0,
+          shadowRadius: 0,
         },
         tabBarItemStyle: {
           borderRadius: 14,
@@ -208,7 +226,7 @@ const styles = StyleSheet.create({
     ...AppTheme.shadow.glow,
   },
   iconShellInactive: {
-    backgroundColor: AppTheme.colors.surfaceSoft,
+    backgroundColor: 'transparent',
   },
   tabLabel: {
     fontSize: 11,
